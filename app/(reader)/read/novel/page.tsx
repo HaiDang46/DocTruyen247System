@@ -21,7 +21,7 @@ export default function NovelReaderPage() {
           <p className="mt-2 text-sm text-subtle">Shadow Library</p>
         </div>
 
-        <div className="reader-copy rounded-lg bg-surface px-5 py-7 shadow-soft md:px-10 md:py-10">
+        <div className="reader-sheet reader-copy">
           {paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}

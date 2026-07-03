@@ -1,9 +1,9 @@
 type ModeSwitchToggleProps = {
-  active: "NOVEL" | "COMIC";
+  active: "NOVEL" | "MANGA";
 };
 
 export function ModeSwitchToggle({ active }: ModeSwitchToggleProps) {
-  const options: Array<"NOVEL" | "COMIC"> = ["NOVEL", "COMIC"];
+  const options: Array<"NOVEL" | "MANGA"> = ["NOVEL", "MANGA"];
 
   return (
     <div className="inline-flex rounded-lg border border-line bg-surface p-1 shadow-soft">

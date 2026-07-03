@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
                 />
                 <select className="w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm outline-none transition focus:border-primary">
                   <option>Novel</option>
-                  <option>Comic</option>
+                  <option>Manga</option>
                 </select>
                 <textarea
                   className="min-h-28 w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm outline-none transition focus:border-primary"
@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
             <div className="rounded-lg border border-dashed border-line bg-surface p-6 text-center shadow-soft">
               <div className="mx-auto h-24 max-w-40 rounded-lg bg-muted" />
               <p className="mt-4 text-sm font-black text-ink">
-                Comic image upload
+                Manga image upload
               </p>
               <p className="mt-1 text-xs text-subtle">
                 JPG, PNG, WEBP placeholders

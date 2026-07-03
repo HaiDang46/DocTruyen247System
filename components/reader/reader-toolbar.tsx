@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type ReaderToolbarProps = {
-  mode: "novel" | "comic";
+  mode: "novel" | "manga";
 };
 
 export function ReaderToolbar({ mode }: ReaderToolbarProps) {

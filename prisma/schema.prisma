@@ -1,0 +1,386 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.UniqueIdentifier
+  email        String    @unique @db.NVarChar(255)
+  passwordHash String    @map("password_hash") @db.NVarChar(255)
+  name         String    @db.NVarChar(120)
+  avatar       String?   @db.NVarChar(500)
+  role         String    @default("user") @db.NVarChar(30)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  profile          UserProfile?
+  settings         UserSettings?
+  authoredStories  Story[]           @relation("StoryAuthorUser")
+  comments         Comment[]
+  ratings          Rating[]
+  favorites        Favorite[]
+  follows          Follow[]
+  readingHistory   ReadingHistory[]
+  readingProgress  ReadingProgress[]
+  chapterViews     ChapterView[]
+  notifications    Notification[]
+  reports          Report[]
+  auditLogs        AuditLog[]        @relation("AdminAuditLogs")
+  wallet           Wallet?
+  transactions     Transaction[]
+  chapterPurchases ChapterPurchase[]
+
+  @@index([role], map: "ix_users_role")
+  @@index([deletedAt], map: "ix_users_deleted_at")
+  @@map("users")
+}
+
+model UserProfile {
+  userId      String   @id @map("user_id") @db.UniqueIdentifier
+  bio         String?  @db.NVarChar(Max)
+  socialLinks String?  @map("social_links") @db.NVarChar(Max)
+  preferences String?  @db.NVarChar(Max)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSettings {
+  userId      String   @id @map("user_id") @db.UniqueIdentifier
+  theme       String   @default("system") @db.NVarChar(20)
+  fontSize    Int      @default(18) @map("font_size")
+  readingMode String   @default("scroll") @map("reading_mode") @db.NVarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model Author {
+  id        String    @id @default(uuid()) @db.UniqueIdentifier
+  name      String    @db.NVarChar(160)
+  bio       String?   @db.NVarChar(Max)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  stories Story[]
+
+  @@index([name], map: "ix_authors_name")
+  @@map("authors")
+}
+
+model Story {
+  id          String    @id @default(uuid()) @db.UniqueIdentifier
+  title       String    @db.NVarChar(255)
+  slug        String    @unique @db.NVarChar(255)
+  description String?   @db.NVarChar(Max)
+  coverImage  String?   @map("cover_image") @db.NVarChar(500)
+  authorId    String    @map("author_id") @db.UniqueIdentifier
+  ownerUserId String?   @map("owner_user_id") @db.UniqueIdentifier
+  status      String    @default("draft") @db.NVarChar(30)
+  contentType String    @default("novel") @map("content_type") @db.NVarChar(30)
+  views       BigInt    @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  author          Author          @relation(fields: [authorId], references: [id])
+  ownerUser       User?           @relation("StoryAuthorUser", fields: [ownerUserId], references: [id])
+  chapters        Chapter[]
+  categories      StoryCategory[]
+  comments        Comment[]
+  ratings         Rating[]
+  favorites       Favorite[]
+  follows         Follow[]
+  readingHistory  ReadingHistory[]
+  readingProgress ReadingProgress[]
+
+  @@index([slug], map: "ix_stories_slug")
+  @@index([authorId], map: "ix_stories_author_id")
+  @@index([ownerUserId], map: "ix_stories_owner_user_id")
+  @@index([contentType, status], map: "ix_stories_content_type_status")
+  @@index([deletedAt], map: "ix_stories_deleted_at")
+  @@map("stories")
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.UniqueIdentifier
+  name      String    @unique @db.NVarChar(120)
+  slug      String    @unique @db.NVarChar(140)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  stories StoryCategory[]
+
+  @@index([slug], map: "ix_categories_slug")
+  @@map("categories")
+}
+
+model StoryCategory {
+  storyId    String   @map("story_id") @db.UniqueIdentifier
+  categoryId String   @map("category_id") @db.UniqueIdentifier
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  story    Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([storyId, categoryId])
+  @@index([categoryId], map: "ix_story_categories_category_id")
+  @@map("story_categories")
+}
+
+model Chapter {
+  id            String    @id @default(uuid()) @db.UniqueIdentifier
+  storyId       String    @map("story_id") @db.UniqueIdentifier
+  chapterNumber Int       @map("chapter_number")
+  title         String    @db.NVarChar(255)
+  content       String?   @db.NVarChar(Max)
+  imageManifest String?   @map("image_manifest") @db.NVarChar(Max)
+  isPremium     Boolean   @default(false) @map("is_premium")
+  coinPrice     Int       @default(0) @map("coin_price")
+  views         BigInt    @default(0)
+  publishedAt   DateTime? @map("published_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  story             Story             @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  comments          Comment[]
+  readingHistory    ReadingHistory[]
+  readingProgress   ReadingProgress[]
+  chapterViews      ChapterView[]
+  chapterPurchases  ChapterPurchase[]
+
+  @@unique([storyId, chapterNumber], map: "ux_chapters_story_chapter_number")
+  @@index([storyId], map: "ix_chapters_story_id")
+  @@index([chapterNumber], map: "ix_chapters_chapter_number")
+  @@index([deletedAt], map: "ix_chapters_deleted_at")
+  @@map("chapters")
+}
+
+model Comment {
+  id        String    @id @default(uuid()) @db.UniqueIdentifier
+  userId    String    @map("user_id") @db.UniqueIdentifier
+  storyId   String?   @map("story_id") @db.UniqueIdentifier
+  chapterId String?   @map("chapter_id") @db.UniqueIdentifier
+  content   String    @db.NVarChar(Max)
+  parentId  String?   @map("parent_id") @db.UniqueIdentifier
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  story    Story?    @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chapter  Chapter?  @relation(fields: [chapterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([userId], map: "ix_comments_user_id")
+  @@index([storyId], map: "ix_comments_story_id")
+  @@index([chapterId], map: "ix_comments_chapter_id")
+  @@index([parentId], map: "ix_comments_parent_id")
+  @@map("comments")
+}
+
+model Rating {
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  storyId   String   @map("story_id") @db.UniqueIdentifier
+  rating    Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  story Story @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, storyId])
+  @@index([storyId], map: "ix_ratings_story_id")
+  @@map("ratings")
+}
+
+model Favorite {
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  storyId   String   @map("story_id") @db.UniqueIdentifier
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  story Story @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, storyId])
+  @@index([storyId], map: "ix_favorites_story_id")
+  @@map("favorites")
+}
+
+model Follow {
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  storyId   String   @map("story_id") @db.UniqueIdentifier
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  story Story @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, storyId])
+  @@index([storyId], map: "ix_follows_story_id")
+  @@map("follows")
+}
+
+model ReadingHistory {
+  id        String   @id @default(uuid()) @db.UniqueIdentifier
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  storyId   String   @map("story_id") @db.UniqueIdentifier
+  chapterId String   @map("chapter_id") @db.UniqueIdentifier
+  readAt    DateTime @default(now()) @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story   Story   @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId, readAt], map: "ix_reading_history_user_read_at")
+  @@index([storyId], map: "ix_reading_history_story_id")
+  @@index([chapterId], map: "ix_reading_history_chapter_id")
+  @@map("reading_history")
+}
+
+model ReadingProgress {
+  userId         String   @map("user_id") @db.UniqueIdentifier
+  storyId        String   @map("story_id") @db.UniqueIdentifier
+  chapterId      String   @map("chapter_id") @db.UniqueIdentifier
+  scrollPosition Int      @default(0) @map("scroll_position")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story   Story   @relation(fields: [storyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, storyId])
+  @@index([userId], map: "ix_reading_progress_user_id")
+  @@index([storyId], map: "ix_reading_progress_story_id")
+  @@index([chapterId], map: "ix_reading_progress_chapter_id")
+  @@map("reading_progress")
+}
+
+model ChapterView {
+  id        String   @id @default(uuid()) @db.UniqueIdentifier
+  chapterId String   @map("chapter_id") @db.UniqueIdentifier
+  userId    String?  @map("user_id") @db.UniqueIdentifier
+  ipAddress String?  @map("ip_address") @db.NVarChar(45)
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([chapterId], map: "ix_chapter_views_chapter_id")
+  @@index([userId], map: "ix_chapter_views_user_id")
+  @@index([viewedAt], map: "ix_chapter_views_viewed_at")
+  @@map("chapter_views")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.UniqueIdentifier
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  type      String   @db.NVarChar(50)
+  content   String   @db.NVarChar(Max)
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead], map: "ix_notifications_user_is_read")
+  @@map("notifications")
+}
+
+model Report {
+  id         String   @id @default(uuid()) @db.UniqueIdentifier
+  userId     String   @map("user_id") @db.UniqueIdentifier
+  targetType String   @map("target_type") @db.NVarChar(50)
+  targetId   String   @map("target_id") @db.UniqueIdentifier
+  reason     String   @db.NVarChar(Max)
+  status     String   @default("pending") @db.NVarChar(30)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId], map: "ix_reports_user_id")
+  @@index([targetType, targetId], map: "ix_reports_target")
+  @@index([status], map: "ix_reports_status")
+  @@map("reports")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.UniqueIdentifier
+  adminId    String   @map("admin_id") @db.UniqueIdentifier
+  action     String   @db.NVarChar(100)
+  targetType String   @map("target_type") @db.NVarChar(50)
+  targetId   String   @map("target_id") @db.UniqueIdentifier
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  admin User @relation("AdminAuditLogs", fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([adminId], map: "ix_audit_logs_admin_id")
+  @@index([targetType, targetId], map: "ix_audit_logs_target")
+  @@map("audit_logs")
+}
+
+model Wallet {
+  userId    String   @id @map("user_id") @db.UniqueIdentifier
+  balance   Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id        String   @id @default(uuid()) @db.UniqueIdentifier
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  amount    Int
+  type      String   @db.NVarChar(40)
+  status    String   @default("pending") @db.NVarChar(30)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId], map: "ix_transactions_user_id")
+  @@index([status], map: "ix_transactions_status")
+  @@map("transactions")
+}
+
+model ChapterPurchase {
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  chapterId String   @map("chapter_id") @db.UniqueIdentifier
+  price     Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([userId, chapterId])
+  @@index([chapterId], map: "ix_chapter_purchases_chapter_id")
+  @@map("chapter_purchases")
+}

@@ -3,19 +3,18 @@ import { ReaderToolbar } from "@/components/reader/reader-toolbar";
 
 const panels = Array.from({ length: 8 }, (_, index) => index + 1);
 
-export default function ComicReaderPage() {
+export default function MangaReaderPage() {
   return (
     <div className="pb-24">
-      <ReaderToolbar mode="comic" />
+      <ReaderToolbar mode="manga" />
 
       <section className="mx-auto max-w-4xl px-0 py-5 sm:px-4">
         <div className="mx-auto max-w-3xl overflow-hidden bg-slate-950">
           {panels.map((panel) => (
             <div
               key={panel}
-              className="relative min-h-[420px] border-b border-slate-800 bg-slate-900 sm:min-h-[620px]"
+              className="manga-panel"
             >
-              <div className="absolute inset-0 animate-pulse bg-slate-800" />
               <div className="relative flex min-h-[420px] items-center justify-center p-6 text-center sm:min-h-[620px]">
                 <div>
                   <p className="text-xs font-bold uppercase text-slate-400">

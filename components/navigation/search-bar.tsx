@@ -4,12 +4,12 @@ type SearchBarProps = {
 };
 
 export function SearchBar({
-  placeholder = "Search novels, comics, authors",
+  placeholder = "Search novels, manga, authors",
   wide = false
 }: SearchBarProps) {
   return (
     <label
-      className={`flex h-11 items-center gap-2 rounded-lg border border-line bg-canvas px-3 transition focus-within:border-primary ${
+      className={`soft-control flex h-11 items-center gap-2 px-3 ${
         wide ? "w-full" : "mx-auto max-w-xl"
       }`}
     >

@@ -7,7 +7,7 @@ export default function HomePage() {
   const trending = stories.slice(0, 5);
   const latest = stories.slice(3, 8);
   const novels = stories.filter((story) => story.type === "NOVEL").slice(0, 5);
-  const comics = stories.filter((story) => story.type === "COMIC").slice(0, 5);
+  const mangas = stories.filter((story) => story.type === "MANGA").slice(0, 5);
 
   return (
     <div className="space-y-10">
@@ -29,8 +29,8 @@ export default function HomePage() {
       </section>
 
       <section className="space-y-4">
-        <SectionHeader title="Popular comics" action="Comic" />
-        <StoryGrid stories={comics} />
+        <SectionHeader title="Popular manga" action="Manga" />
+        <StoryGrid stories={mangas} />
       </section>
     </div>
   );

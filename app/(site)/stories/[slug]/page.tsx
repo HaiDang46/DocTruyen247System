@@ -22,16 +22,16 @@ export default async function StoryDetailPage({ params }: StoryDetailPageProps) 
         <div className="space-y-4">
           <StoryCover story={story} priority />
           <div className="grid grid-cols-3 gap-2">
-            <button className="col-span-3 rounded-lg bg-primary px-4 py-3 text-sm font-bold text-white shadow-soft transition hover:translate-y-[-1px]">
+            <button className="button-primary col-span-3">
               Read Now
             </button>
-            <button className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-primary">
+            <button className="button-ghost">
               Follow
             </button>
-            <button className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-primary">
+            <button className="button-ghost">
               Favorite
             </button>
-            <button className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-primary">
+            <button className="button-ghost">
               Share
             </button>
           </div>
@@ -89,7 +89,7 @@ export default async function StoryDetailPage({ params }: StoryDetailPageProps) 
           </div>
 
           <div className="rounded-lg border border-line bg-surface p-4 shadow-soft">
-            <SectionHeader title="Comic episodes" action="Grid view" />
+            <SectionHeader title="Manga episodes" action="Grid view" />
             <div className="mt-4 grid grid-cols-2 gap-3">
               {episodes.map((episode) => (
                 <div

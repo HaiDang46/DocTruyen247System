@@ -1,7 +1,7 @@
 import { categories } from "@/lib/mock-data";
 
 const status = ["All", "Ongoing", "Completed", "Hiatus"];
-const types = ["All", "Novel", "Comic"];
+const types = ["All", "Novel", "Manga"];
 
 export function FilterSidebar() {
   return (

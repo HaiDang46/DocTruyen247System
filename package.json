@@ -3,12 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-open.ps1",
+    "dev:next": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev-open.ps1",
+    "start:prod": "next start",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:validate": "prisma validate",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "next": "^15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -19,6 +27,7 @@
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
+    "prisma": "^6.19.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
   }

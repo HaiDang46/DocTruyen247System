@@ -1,4 +1,4 @@
-export type StoryType = "NOVEL" | "COMIC";
+export type StoryType = "NOVEL" | "MANGA";
 
 export type Story = {
   id: string;
@@ -53,7 +53,7 @@ export const stories: Story[] = [
     id: "story-2",
     title: "Neon Blade Office",
     slug: "neon-blade-office",
-    type: "COMIC",
+    type: "MANGA",
     status: "Ongoing",
     author: "Jun Park",
     rating: 4.7,
@@ -68,7 +68,7 @@ export const stories: Story[] = [
     id: "story-3",
     title: "After School Alchemy",
     slug: "after-school-alchemy",
-    type: "COMIC",
+    type: "MANGA",
     status: "Completed",
     author: "Hana Li",
     rating: 4.6,
@@ -113,7 +113,7 @@ export const stories: Story[] = [
     id: "story-6",
     title: "Crownless Runner",
     slug: "crownless-runner",
-    type: "COMIC",
+    type: "MANGA",
     status: "Hiatus",
     author: "Theo Vinh",
     rating: 4.3,
@@ -143,7 +143,7 @@ export const stories: Story[] = [
     id: "story-8",
     title: "Tiny Dragon Payroll",
     slug: "tiny-dragon-payroll",
-    type: "COMIC",
+    type: "MANGA",
     status: "Ongoing",
     author: "Mai Studio",
     rating: 4.6,

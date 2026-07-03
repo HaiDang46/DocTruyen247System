@@ -9,7 +9,7 @@ type StoryCoverProps = {
 export function StoryCover({ story }: StoryCoverProps) {
   return (
     <div
-      className={`relative aspect-[3/4] overflow-hidden rounded-lg border border-white/20 ${story.coverClass}`}
+      className={`story-cover ${story.coverClass}`}
     >
       <div className="absolute inset-0 bg-black/10" />
       <div className="absolute inset-x-0 bottom-0 p-3">

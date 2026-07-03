@@ -13,7 +13,7 @@ export function StoryCard({ story, compact = false }: StoryCardProps) {
   return (
     <Link
       href={`/stories/${story.slug}`}
-      className="group block overflow-hidden rounded-lg border border-line bg-surface shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary hover:shadow-soft"
+      className="story-card group animate-fade-up"
     >
       <StoryCover story={story} compact={compact} />
       <div className="space-y-2 p-3">

@@ -5,22 +5,22 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const tabs = [
   { label: "ALL", href: "/stories" },
   { label: "NOVEL", href: "/stories?type=novel" },
-  { label: "COMIC", href: "/stories?type=comic" }
+  { label: "MANGA", href: "/stories?type=manga" }
 ];
 
 const sidebar = [
   { label: "Home", href: "/" },
   { label: "Library", href: "/stories" },
   { label: "Novel Reader", href: "/read/novel" },
-  { label: "Comic Reader", href: "/read/comic" },
+  { label: "Manga Reader", href: "/read/manga" },
   { label: "Profile", href: "/profile" },
   { label: "Admin", href: "/admin" }
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-line bg-surface/95 backdrop-blur">
+    <div className="app-frame">
+      <header className="top-nav">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">
@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 pb-24 pt-20 lg:grid-cols-[220px_1fr] lg:pb-8">
-        <aside className="hidden rounded-lg border border-line bg-surface p-3 shadow-soft lg:sticky lg:top-24 lg:block lg:self-start">
+        <aside className="surface-panel hidden p-3 lg:sticky lg:top-24 lg:block lg:self-start">
           <nav className="space-y-1">
             {sidebar.map((item, index) => (
               <Link
