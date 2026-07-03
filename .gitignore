@@ -10,6 +10,12 @@
 
 # production
 /build
+/.next
+/out
+
+# local cache
+.turbo
+tsconfig.tsbuildinfo
 
 # misc
 .DS_Store
@@ -21,3 +27,4 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+next-dev*.log
