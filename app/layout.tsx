@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DocTruyen247 UI",
-  description: "Modern UI skeleton for novel and manga reading experiences."
+  title: "DocTruyen247",
+  description: "Giao diện đọc truyện chữ và manga hiện đại."
 };
 
 export default function RootLayout({

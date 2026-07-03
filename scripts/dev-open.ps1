@@ -1,8 +1,25 @@
 $ErrorActionPreference = "Stop"
 
-$port = 3000
-$hostUrl = "http://localhost:$port"
 $projectRoot = Split-Path -Parent $PSScriptRoot
+
+function Test-PortInUse {
+  param([int]$Port)
+
+  try {
+    $connection = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    return $null -ne $connection
+  } catch {
+    return $false
+  }
+}
+
+$port = 3000
+while ((Test-PortInUse -Port $port) -and $port -lt 3010) {
+  Write-Host "Port $port dang duoc su dung, thu port $($port + 1) ..."
+  $port++
+}
+
+$hostUrl = "http://localhost:$port"
 
 Set-Location $projectRoot
 

@@ -13,6 +13,8 @@ export type Story = {
   tags: string[];
   description: string;
   coverClass: string;
+  coverUrl?: string;
+  sourceUrl?: string;
 };
 
 export type Chapter = {
@@ -23,157 +25,159 @@ export type Chapter = {
 };
 
 export const categories = [
-  "Fantasy",
-  "Romance",
-  "Action",
-  "Mystery",
-  "Slice of Life",
-  "Cultivation",
-  "Drama",
-  "Comedy"
+  "Kỳ ảo",
+  "Lãng mạn",
+  "Hành động",
+  "Bí ẩn",
+  "Đời thường",
+  "Tu tiên",
+  "Tâm lý",
+  "Hài hước"
 ];
 
 export const stories: Story[] = [
   {
     id: "story-1",
-    title: "Shadow Library",
+    title: "Thư Viện Bóng Đêm",
     slug: "shadow-library",
     type: "NOVEL",
     status: "Ongoing",
-    author: "Mira Vale",
+    author: "Minh Vân",
     rating: 4.8,
     views: "12.8M",
-    latestChapter: "Chapter 124",
-    tags: ["Fantasy", "Mystery", "Slow burn"],
+    latestChapter: "Chương 124",
+    tags: ["Kỳ ảo", "Bí ẩn", "Chậm rãi"],
     description:
-      "A hidden archive collects unfinished lives, and one apprentice reader learns that some stories are waiting for their authors to disappear.",
-    coverClass: "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500"
+      "Một thư viện bí mật lưu giữ những cuộc đời còn dang dở, nơi một độc giả tập sự phát hiện có những câu chuyện đang chờ tác giả của chúng biến mất.",
+    coverClass: "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
+    sourceUrl: "https://example.com/truyen/thu-vien-bong-dem"
   },
   {
     id: "story-2",
-    title: "Neon Blade Office",
+    title: "Văn Phòng Lưỡi Kiếm Neon",
     slug: "neon-blade-office",
     type: "MANGA",
     status: "Ongoing",
-    author: "Jun Park",
+    author: "Park Tuấn",
     rating: 4.7,
     views: "9.4M",
-    latestChapter: "Episode 48",
-    tags: ["Action", "Cyberpunk", "Comedy"],
+    latestChapter: "Tập 48",
+    tags: ["Hành động", "Cyberpunk", "Hài hước"],
     description:
-      "A courier with a borrowed sword takes impossible delivery jobs through a city that bills citizens for every memory.",
-    coverClass: "bg-gradient-to-br from-fuchsia-700 via-slate-950 to-cyan-500"
+      "Một người giao hàng với thanh kiếm mượn nhận những đơn hàng bất khả thi trong thành phố nơi ký ức cũng bị tính phí.",
+    coverClass: "bg-gradient-to-br from-fuchsia-700 via-slate-950 to-cyan-500",
+    sourceUrl: "https://example.com/manga/van-phong-luoi-kiem-neon"
   },
   {
     id: "story-3",
-    title: "After School Alchemy",
+    title: "Giả Kim Sau Giờ Học",
     slug: "after-school-alchemy",
     type: "MANGA",
     status: "Completed",
-    author: "Hana Li",
+    author: "Hạ Ly",
     rating: 4.6,
     views: "7.1M",
-    latestChapter: "Episode 82",
-    tags: ["School", "Magic", "Comedy"],
+    latestChapter: "Tập 82",
+    tags: ["Học đường", "Phép thuật", "Hài hước"],
     description:
-      "Three students accidentally turn detention into a gateway for small, inconvenient miracles.",
+      "Ba học sinh vô tình biến buổi phạt ở lại lớp thành cánh cổng dẫn tới những phép màu nhỏ nhưng đầy rắc rối.",
     coverClass: "bg-gradient-to-br from-emerald-700 via-teal-700 to-slate-900"
   },
   {
     id: "story-4",
-    title: "The Last Tea Master",
+    title: "Trà Sư Cuối Cùng",
     slug: "the-last-tea-master",
     type: "NOVEL",
     status: "Ongoing",
     author: "An Khoa",
     rating: 4.9,
     views: "5.6M",
-    latestChapter: "Chapter 91",
-    tags: ["Wuxia", "Drama", "Healing"],
+    latestChapter: "Chương 91",
+    tags: ["Kiếm hiệp", "Tâm lý", "Chữa lành"],
     description:
-      "An exiled artisan travels between rival courts, serving tea that can reveal a person's truest memory.",
+      "Một nghệ nhân bị lưu đày đi qua các triều đình đối địch, pha những chén trà có thể hé lộ ký ức chân thật nhất của mỗi người.",
     coverClass: "bg-gradient-to-br from-stone-800 via-emerald-900 to-lime-600"
   },
   {
     id: "story-5",
-    title: "Moonlit Delivery Guild",
+    title: "Hiệp Hội Giao Hàng Dưới Trăng",
     slug: "moonlit-delivery-guild",
     type: "NOVEL",
     status: "Ongoing",
-    author: "Sora Min",
+    author: "Minh Sora",
     rating: 4.5,
     views: "4.8M",
-    latestChapter: "Chapter 63",
-    tags: ["Adventure", "Found family", "Magic"],
+    latestChapter: "Chương 63",
+    tags: ["Phiêu lưu", "Gia đình tìm thấy", "Phép thuật"],
     description:
-      "Every midnight delivery changes the map, but the guild's newest rider has never missed an address.",
+      "Mỗi chuyến giao hàng lúc nửa đêm đều làm bản đồ thay đổi, nhưng người đưa thư mới nhất của hội chưa từng giao sai địa chỉ.",
     coverClass: "bg-gradient-to-br from-indigo-950 via-blue-900 to-amber-400"
   },
   {
     id: "story-6",
-    title: "Crownless Runner",
+    title: "Kẻ Chạy Không Vương Miện",
     slug: "crownless-runner",
     type: "MANGA",
     status: "Hiatus",
     author: "Theo Vinh",
     rating: 4.3,
     views: "3.2M",
-    latestChapter: "Episode 35",
-    tags: ["Sports", "Drama", "Rivals"],
+    latestChapter: "Tập 35",
+    tags: ["Thể thao", "Tâm lý", "Đối thủ"],
     description:
-      "A fallen champion joins an underground relay where every race rewrites the leaderboard of the city.",
+      "Một nhà vô địch sa cơ bước vào giải chạy tiếp sức ngầm, nơi mỗi cuộc đua đều viết lại bảng xếp hạng của cả thành phố.",
     coverClass: "bg-gradient-to-br from-rose-700 via-orange-600 to-slate-950"
   },
   {
     id: "story-7",
-    title: "Garden of Broken Stars",
+    title: "Khu Vườn Sao Vỡ",
     slug: "garden-of-broken-stars",
     type: "NOVEL",
     status: "Completed",
-    author: "N. Calder",
+    author: "Nam Khải",
     rating: 4.4,
     views: "6.0M",
-    latestChapter: "Chapter 140",
-    tags: ["Sci-fi", "Romance", "Space"],
+    latestChapter: "Chương 140",
+    tags: ["Khoa học viễn tưởng", "Lãng mạn", "Không gian"],
     description:
-      "Two botanists grow impossible flowers on a dead orbital station and wake something ancient below the roots.",
+      "Hai nhà thực vật học trồng những loài hoa không tưởng trên trạm quỹ đạo bỏ hoang và đánh thức một điều cổ xưa nằm dưới rễ cây.",
     coverClass: "bg-gradient-to-br from-cyan-900 via-slate-950 to-pink-500"
   },
   {
     id: "story-8",
-    title: "Tiny Dragon Payroll",
+    title: "Bảng Lương Rồng Nhỏ",
     slug: "tiny-dragon-payroll",
     type: "MANGA",
     status: "Ongoing",
     author: "Mai Studio",
     rating: 4.6,
     views: "2.9M",
-    latestChapter: "Episode 22",
-    tags: ["Comedy", "Office", "Fantasy"],
+    latestChapter: "Tập 22",
+    tags: ["Hài hước", "Công sở", "Kỳ ảo"],
     description:
-      "An office accountant discovers the company mascot is a fire-breathing executive with very strict expense policies.",
+      "Một kế toán văn phòng phát hiện linh vật công ty thật ra là vị giám đốc biết phun lửa và cực kỳ nghiêm khắc về chi phí.",
     coverClass: "bg-gradient-to-br from-yellow-500 via-red-500 to-slate-900"
   }
 ];
 
 export const chapters: Chapter[] = [
-  { id: "chapter-1", number: 124, title: "A Bell Under Stone", isPremium: true },
-  { id: "chapter-2", number: 123, title: "The Ink Learns a Name", isPremium: false },
-  { id: "chapter-3", number: 122, title: "Rain Against the Archive", isPremium: false },
-  { id: "chapter-4", number: 121, title: "A Stair Between Sentences", isPremium: false },
-  { id: "chapter-5", number: 120, title: "Borrowed Lanterns", isPremium: false }
+  { id: "chapter-1", number: 124, title: "Tiếng Chuông Dưới Đá", isPremium: true },
+  { id: "chapter-2", number: 123, title: "Mực Đen Học Cách Gọi Tên", isPremium: false },
+  { id: "chapter-3", number: 122, title: "Mưa Rơi Trên Kho Lưu Trữ", isPremium: false },
+  { id: "chapter-4", number: 121, title: "Bậc Thang Giữa Hai Câu Chữ", isPremium: false },
+  { id: "chapter-5", number: 120, title: "Những Chiếc Đèn Mượn", isPremium: false }
 ];
 
 export const episodes = [
-  { id: "episode-1", number: 48, title: "Signal Over Glass" },
-  { id: "episode-2", number: 47, title: "City Toll" },
-  { id: "episode-3", number: 46, title: "Borrowed Sword" },
-  { id: "episode-4", number: 45, title: "Late Delivery" }
+  { id: "episode-1", number: 48, title: "Tín Hiệu Trên Mặt Kính" },
+  { id: "episode-2", number: 47, title: "Phí Qua Thành Phố" },
+  { id: "episode-3", number: 46, title: "Thanh Kiếm Mượn" },
+  { id: "episode-4", number: 45, title: "Chuyến Giao Muộn" }
 ];
 
 export const profileItems = [
-  { story: stories[0], chapter: "Chapter 124", progress: 68 },
-  { story: stories[1], chapter: "Episode 48", progress: 42 },
-  { story: stories[3], chapter: "Chapter 91", progress: 86 },
-  { story: stories[6], chapter: "Chapter 140", progress: 100 }
+  { story: stories[0], chapter: "Chương 124", progress: 68 },
+  { story: stories[1], chapter: "Tập 48", progress: 42 },
+  { story: stories[3], chapter: "Chương 91", progress: 86 },
+  { story: stories[6], chapter: "Chương 140", progress: 100 }
 ];

@@ -4,7 +4,7 @@ type SearchBarProps = {
 };
 
 export function SearchBar({
-  placeholder = "Search novels, manga, authors",
+  placeholder = "Tìm truyện, manga, tác giả",
   wide = false
 }: SearchBarProps) {
   return (

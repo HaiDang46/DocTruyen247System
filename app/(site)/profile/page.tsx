@@ -3,7 +3,7 @@ import { SectionHeader } from "@/components/sections/section-header";
 import { StoryCover } from "@/components/story/story-cover";
 import { profileItems } from "@/lib/mock-data";
 
-const tabs = ["Reading history", "Favorites", "Following", "Continue reading"];
+const tabs = ["Lịch sử đọc", "Yêu thích", "Đang theo dõi", "Đọc tiếp"];
 
 export default function ProfilePage() {
   return (
@@ -15,14 +15,14 @@ export default function ProfilePage() {
               DT
             </div>
             <div>
-              <h1 className="text-2xl font-black text-ink">Reader Profile</h1>
+              <h1 className="text-2xl font-black text-ink">Hồ sơ độc giả</h1>
               <p className="mt-1 text-sm text-subtle">
-                38 truyen dang theo doi
+                38 truyện đang theo dõi
               </p>
             </div>
           </div>
           <button className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:border-primary hover:text-primary">
-            Edit profile
+            Sửa hồ sơ
           </button>
         </div>
       </section>
@@ -43,7 +43,7 @@ export default function ProfilePage() {
       </div>
 
       <section className="rounded-lg border border-line bg-surface p-4 shadow-soft">
-        <SectionHeader title="Continue reading" action="Sync local" />
+        <SectionHeader title="Đọc tiếp" action="Đồng bộ" />
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {profileItems.map((item) => (
             <article

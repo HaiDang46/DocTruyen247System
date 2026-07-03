@@ -16,7 +16,7 @@ export function HeroBanner({ stories }: HeroBannerProps) {
       <div className="grid gap-0 lg:grid-cols-[1fr_360px]">
         <div className="p-5 md:p-8">
           <div className="flex flex-wrap items-center gap-2">
-            <TagBadge tone="blue">ALL</TagBadge>
+            <TagBadge tone="blue">Tất cả</TagBadge>
             <TagBadge>{featured.latestChapter}</TagBadge>
           </div>
           <h1 className="mt-5 max-w-3xl text-4xl font-black text-ink md:text-6xl">
@@ -28,7 +28,7 @@ export function HeroBanner({ stories }: HeroBannerProps) {
           <div className="mt-5 flex flex-wrap items-center gap-4">
             <RatingStars rating={featured.rating} />
             <span className="text-sm font-bold text-subtle">
-              {featured.views} views
+              {featured.views} lượt xem
             </span>
           </div>
           <div className="mt-7 flex flex-wrap gap-3">
@@ -36,13 +36,13 @@ export function HeroBanner({ stories }: HeroBannerProps) {
               href={`/stories/${featured.slug}`}
               className="rounded-lg bg-primary px-5 py-3 text-sm font-black text-white transition hover:translate-y-[-1px]"
             >
-              Read Now
+              Đọc ngay
             </Link>
             <Link
               href="/stories"
               className="rounded-lg border border-line bg-canvas px-5 py-3 text-sm font-black text-ink transition hover:border-primary hover:text-primary"
             >
-              Browse Library
+              Khám phá thư viện
             </Link>
           </div>
         </div>

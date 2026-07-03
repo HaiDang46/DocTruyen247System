@@ -17,7 +17,7 @@ export function ThemeToggle() {
       aria-pressed={dark}
     >
       <span className="h-3 w-3 rounded-full bg-current" />
-      {dark ? "Dark" : "Light"}
+      {dark ? "Tối" : "Sáng"}
     </button>
   );
 }

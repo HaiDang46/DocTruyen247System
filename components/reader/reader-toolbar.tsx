@@ -12,17 +12,17 @@ export function ReaderToolbar({ mode }: ReaderToolbarProps) {
           DocTruyen247
         </Link>
         <span className="rounded-lg bg-muted px-2 py-1 text-xs font-bold uppercase text-subtle">
-          {mode}
+          {mode === "novel" ? "truyện chữ" : "manga"}
         </span>
         <div className="ml-auto flex min-w-0 items-center gap-2">
           {mode === "novel" ? (
             <>
               <label className="hidden items-center gap-2 text-xs font-bold text-subtle sm:flex">
-                Font
+                Cỡ chữ
                 <input className="w-28 accent-blue-600" type="range" />
               </label>
               <div className="flex rounded-lg border border-line bg-canvas p-1">
-                {["Light", "Dark", "Sepia"].map((theme, index) => (
+                {["Sáng", "Tối", "Sepia"].map((theme, index) => (
                   <button
                     key={theme}
                     className={`rounded-lg px-2 py-1 text-xs font-bold ${
@@ -38,7 +38,7 @@ export function ReaderToolbar({ mode }: ReaderToolbarProps) {
             </>
           ) : (
             <div className="flex rounded-lg border border-line bg-canvas p-1">
-              {["Fit", "Wide", "Zoom"].map((item, index) => (
+              {["Vừa màn", "Rộng", "Phóng to"].map((item, index) => (
                 <button
                   key={item}
                   className={`rounded-lg px-2 py-1 text-xs font-bold ${

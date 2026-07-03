@@ -16,7 +16,7 @@ export function ModeSwitchToggle({ active }: ModeSwitchToggleProps) {
               : "text-subtle hover:bg-muted hover:text-ink"
           }`}
         >
-          {option} MODE
+          {option === "NOVEL" ? "TRUYỆN CHỮ" : "MANGA"}
         </button>
       ))}
     </div>

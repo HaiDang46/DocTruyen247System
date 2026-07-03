@@ -1,19 +1,46 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { FilterSidebar } from "@/components/filters/filter-sidebar";
 import { SearchBar } from "@/components/navigation/search-bar";
 import { SectionHeader } from "@/components/sections/section-header";
 import { StoryGrid } from "@/components/story/story-grid";
-import { stories } from "@/lib/mock-data";
+import { stories as mockStories, type Story } from "@/lib/mock-data";
+import { isDbConnected, getStoriesDb } from "@/lib/actions";
 
 export default function StoryListPage() {
+  const [stories, setStories] = useState<Story[]>(mockStories);
+
+  useEffect(() => {
+    isDbConnected().then((connected) => {
+      if (connected) {
+        getStoriesDb().then((res) => {
+          if (res.success && res.data) {
+            setStories(res.data);
+          }
+        });
+      } else {
+        const saved = localStorage.getItem("doc_truyen_stories");
+        if (saved) {
+          try {
+            setStories(JSON.parse(saved));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+    });
+  }, []);
+
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
       <FilterSidebar />
 
       <section className="space-y-5">
         <div className="rounded-lg border border-line bg-surface p-4 shadow-soft">
-          <SectionHeader title="Thu vien truyen" action="128 ket qua" />
+          <SectionHeader title="Thư viện truyện" action={`${stories.length} truyện`} />
           <div className="mt-4">
-            <SearchBar placeholder="Tim ten truyen, tac gia, the loai" wide />
+            <SearchBar placeholder="Tìm tên truyện, tác giả, thể loại" wide />
           </div>
         </div>
 
@@ -33,10 +60,11 @@ export default function StoryListPage() {
             </button>
           ))}
           <button className="h-10 rounded-lg border border-line bg-surface px-4 text-sm font-semibold text-subtle transition hover:border-primary hover:text-primary">
-            Infinite scroll
+            Cuộn vô hạn
           </button>
         </div>
       </section>
     </div>
   );
 }
+
