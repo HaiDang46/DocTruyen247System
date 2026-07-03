@@ -10,7 +10,18 @@ import { StoryCover } from "@/components/story/story-cover";
 import { TagBadge } from "@/components/tag-badge";
 import { formatStoryStatus, formatStoryType } from "@/lib/display";
 import { chapters as mockChapters, episodes, stories as mockStories } from "@/lib/mock-data";
-import { isDbConnected, getStoriesDb, getChaptersDb } from "@/lib/actions";
+import { 
+  isDbConnected, 
+  getStoriesDb, 
+  getChaptersDb,
+  getCommentsDb,
+  createCommentDb,
+  deleteCommentDb,
+  getUserRatingDb,
+  submitRatingDb
+} from "@/lib/actions";
+import { useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth/auth-modal";
 
 type StoryDetailPageProps = {
   params: Promise<{
@@ -20,9 +31,15 @@ type StoryDetailPageProps = {
 
 export default function StoryDetailPage({ params }: StoryDetailPageProps) {
   const { slug } = use(params);
+  const { user } = useAuth();
   
   const [stories, setStories] = useState(mockStories);
   const [chapters, setChapters] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentInput, setCommentInput] = useState("");
+  const [userRating, setUserRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   useEffect(() => {
     isDbConnected().then((connected) => {
@@ -37,6 +54,22 @@ export default function StoryDetailPage({ params }: StoryDetailPageProps) {
                   setChapters(chapRes.data);
                 }
               });
+
+              // Load comments
+              getCommentsDb(foundStory.id).then((commentRes) => {
+                if (commentRes.success && commentRes.data) {
+                  setComments(commentRes.data);
+                }
+              });
+
+              // Load rating
+              if (user) {
+                getUserRatingDb(foundStory.id, user.id).then((rateRes) => {
+                  if (rateRes.success && rateRes.data !== undefined) {
+                    setUserRating(rateRes.data);
+                  }
+                });
+              }
             }
           }
         });
@@ -58,16 +91,27 @@ export default function StoryDetailPage({ params }: StoryDetailPageProps) {
             console.error(e);
           }
         } else {
-          setChapters(mockChapters.map(c => ({ ...c, storyId: "story-1" }))); // Fallback for default stories
+          setChapters(mockChapters.map(c => ({ ...c, storyId: "story-1" })));
         }
       }
     });
-  }, [slug]);
+  }, [slug, user?.id]);
 
   const story = stories.find((item) => item.slug === slug) ?? stories[0];
 
   // Filter chapters belonging to this story
   const storyChapters = chapters.filter(c => c.storyId === story.id).sort((a, b) => b.number - a.number);
+  async function handleCommentSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!commentInput.trim() || !user) return;
+    const res = await createCommentDb(story.id, user.id, commentInput.trim());
+    if (res.success && res.data) {
+      setComments((prev) => [res.data, ...prev]);
+      setCommentInput("");
+    } else {
+      alert("Lỗi đăng bình luận: " + res.error);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -120,6 +164,50 @@ export default function StoryDetailPage({ params }: StoryDetailPageProps) {
 
               <div className="mt-4 flex flex-wrap items-center gap-4">
                 <RatingStars rating={story.rating} />
+                
+                {/* Interactive Star Chấm Điểm */}
+                <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-1.5 border border-line">
+                  <span className="text-xs font-bold text-subtle">
+                    {user ? "Đánh giá của bạn:" : "Đăng nhập để đánh giá:"}
+                  </span>
+                  <div className="flex text-base text-amber-400">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const starValue = index + 1;
+                      const isLit = hoverRating ? starValue <= hoverRating : starValue <= userRating;
+                      
+                      return (
+                        <button
+                          key={index}
+                          onClick={async () => {
+                            if (!user) {
+                              setIsAuthOpen(true);
+                              return;
+                            }
+                            const res = await submitRatingDb(story.id, user.id, starValue);
+                            if (res.success) {
+                              setUserRating(starValue);
+                              const connected = await isDbConnected();
+                              if (connected) {
+                                const storyRes = await getStoriesDb();
+                                if (storyRes.success && storyRes.data) {
+                                  setStories(storyRes.data);
+                                }
+                              }
+                            }
+                          }}
+                          onMouseEnter={() => user && setHoverRating(starValue)}
+                          onMouseLeave={() => user && setHoverRating(0)}
+                          className={`transition ${user ? "hover:scale-125 cursor-pointer" : "cursor-pointer"}`}
+                          title={user ? `Đánh giá ${starValue} sao` : "Đăng nhập để đánh giá"}
+                          type="button"
+                        >
+                          {isLit ? "★" : "☆"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <span className="text-sm font-semibold text-subtle">
                   {story.views} lượt xem
                 </span>
@@ -224,8 +312,93 @@ export default function StoryDetailPage({ params }: StoryDetailPageProps) {
               </div>
             </div>
           </section>
+
+          {/* Comments Section */}
+          <section className="rounded-lg border border-line bg-surface p-5 shadow-soft">
+            <SectionHeader title="Bình luận & Thảo luận" action={`${comments.length} bình luận`} />
+            
+            {/* Comment Input */}
+            {user ? (
+              <form onSubmit={handleCommentSubmit} className="mt-4 space-y-3">
+                <textarea
+                  placeholder="Chia sẻ cảm nghĩ của bạn về bộ truyện..."
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  className="w-full rounded-xl border border-line bg-canvas px-4 py-3 text-sm text-ink placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  rows={3}
+                  required
+                />
+                <div className="flex justify-end">
+                  <button className="button-primary text-xs py-2 px-5" type="submit">
+                    Gửi bình luận
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="mt-4 rounded-xl border border-dashed border-line bg-muted/30 p-6 text-center">
+                <p className="text-sm text-subtle">Bạn cần đăng nhập để tham gia thảo luận.</p>
+                <button
+                  onClick={() => setIsAuthOpen(true)}
+                  className="mt-3 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-primary/95 transition"
+                  type="button"
+                >
+                  Đăng nhập ngay
+                </button>
+              </div>
+            )}
+
+            {/* Comments List */}
+            <div className="mt-6 space-y-4 divide-y divide-line">
+              {comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div key={comment.id} className="pt-4 flex gap-3 items-start group">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primarySoft text-xs font-black text-primary uppercase flex-shrink-0">
+                      {comment.userName.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-black text-ink">{comment.userName}</span>
+                          <span className="text-[10px] text-subtle ml-2">
+                            {new Date(comment.createdAt).toLocaleDateString("vi-VN", {
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </span>
+                        </div>
+                        {user && user.id === comment.userId && (
+                          <button
+                            onClick={async () => {
+                              if (confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
+                                const res = await deleteCommentDb(comment.id, user.id);
+                                if (res.success) {
+                                  setComments(comments.filter(c => c.id !== comment.id));
+                                }
+                              }
+                            }}
+                            className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-rose-600 hover:underline transition"
+                            type="button"
+                          >
+                            Xóa
+                          </button>
+                        )}
+                      </div>
+                      <p className="mt-1.5 text-xs text-subtle whitespace-pre-line leading-relaxed">
+                        {comment.content}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="py-8 text-xs text-subtle text-center">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nghĩ!</p>
+              )}
+            </div>
+          </section>
         </>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }

@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { SearchBar } from "@/components/navigation/search-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ActiveLink } from "./active-link";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth/auth-modal";
 
 const navItems = [
   { label: "Trang chủ", href: "/" },
@@ -52,6 +57,18 @@ const bottomNavItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
+    <AuthProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </AuthProvider>
+  );
+}
+
+function AppShellContent({ children }: { children: React.ReactNode }) {
+  const { user, logout } = useAuth();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  return (
     <div className="app-frame">
       <header className="top-nav">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 justify-between">
@@ -85,12 +102,56 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <ThemeToggle />
-            <Link
-              href="/profile"
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-xs font-black text-subtle"
-            >
-              TÔI
-            </Link>
+            
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex h-9 items-center gap-2 rounded-lg bg-muted px-3 text-xs font-black text-ink hover:bg-muted/80 transition"
+                  type="button"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-[10px] font-black text-white uppercase">
+                    {user.name.charAt(0)}
+                  </div>
+                  <span className="hidden sm:inline">{user.name}</span>
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-line bg-surface p-1.5 shadow-xl z-50">
+                    <div className="px-3 py-2 border-b border-line mb-1.5">
+                      <p className="text-[10px] text-subtle font-bold uppercase tracking-wider">Tài khoản</p>
+                      <p className="text-xs font-bold text-ink truncate mt-0.5">{user.name}</p>
+                      <p className="text-[10px] text-subtle truncate mt-0.5">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink hover:bg-muted transition"
+                    >
+                      Hồ sơ của tôi
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left block rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition mt-1"
+                      type="button"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsAuthOpen(true)}
+                className="flex h-9 items-center justify-center rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-black text-white shadow-sm transition hover:-translate-y-[1px]"
+                type="button"
+              >
+                Đăng nhập
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -114,6 +175,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </div>
       </nav>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }

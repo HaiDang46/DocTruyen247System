@@ -4,7 +4,8 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ReaderToolbar } from "@/components/reader/reader-toolbar";
 import { stories as mockStories, chapters as mockChapters } from "@/lib/mock-data";
-import { isDbConnected, getStoriesDb, getChaptersDb } from "@/lib/actions";
+import { isDbConnected, getStoriesDb, getChaptersDb, saveReadingHistoryDb } from "@/lib/actions";
+import { useAuth } from "@/lib/auth-context";
 
 function MangaReaderContent() {
   const searchParams = useSearchParams();
@@ -12,9 +13,21 @@ function MangaReaderContent() {
   const storyId = searchParams.get("storyId");
   const chapterId = searchParams.get("chapterId");
 
+  const { user } = useAuth();
+
   const [stories, setStories] = useState(mockStories);
   const [chapters, setChapters] = useState<any[]>([]);
   const [currentChapter, setCurrentChapter] = useState<any>(null);
+
+  useEffect(() => {
+    if (user && storyId && currentChapter?.id) {
+      isDbConnected().then((connected) => {
+        if (connected) {
+          saveReadingHistoryDb(user.id, storyId, currentChapter.id);
+        }
+      });
+    }
+  }, [user, storyId, currentChapter?.id]);
 
   useEffect(() => {
     isDbConnected().then((connected) => {

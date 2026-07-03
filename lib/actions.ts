@@ -113,24 +113,33 @@ export async function getStoriesDb() {
         orderBy: { createdAt: "desc" }
       });
     }
+
+    const allRatings = await prisma.rating.findMany();
     
     return {
       success: true,
-      data: stories.map(s => ({
-        id: s.id,
-        title: s.title,
-        slug: s.slug,
-        type: s.contentType.toUpperCase() as "NOVEL" | "MANGA",
-        status: (s.status.charAt(0).toUpperCase() + s.status.slice(1)) as any,
-        author: s.author.name,
-        rating: 4.8, // Mocked rating
-        views: String(s.views),
-        latestChapter: "Chương mới", // Will be resolved dynamically on client
-        tags: s.categories.map(c => c.category.name),
-        description: s.description || "",
-        coverClass: "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
-        coverUrl: s.coverImage || undefined,
-      }))
+      data: stories.map(s => {
+        const storyRatings = allRatings.filter(r => r.storyId === s.id);
+        const rating = storyRatings.length > 0
+          ? Number((storyRatings.reduce((sum, r) => sum + r.rating, 0) / storyRatings.length).toFixed(1))
+          : 4.8;
+
+        return {
+          id: s.id,
+          title: s.title,
+          slug: s.slug,
+          type: s.contentType.toUpperCase() as "NOVEL" | "MANGA",
+          status: (s.status.charAt(0).toUpperCase() + s.status.slice(1)) as any,
+          author: s.author.name,
+          rating,
+          views: String(s.views),
+          latestChapter: "Chương mới", // Will be resolved dynamically on client
+          tags: s.categories.map(c => c.category.name),
+          description: s.description || "",
+          coverClass: "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
+          coverUrl: s.coverImage || undefined,
+        };
+      })
     };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -509,6 +518,258 @@ export async function scrapeChapterFromUrl(url: string) {
       number: chapNumber,
       content
     };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 10. Authentication Actions
+export async function loginUserDb(email: string, password: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+    if (!user) {
+      return { success: false, error: "Email không tồn tại." };
+    }
+    if (user.passwordHash !== password) {
+      return { success: false, error: "Mật khẩu không chính xác." };
+    }
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function registerUserDb(name: string, email: string, password: string) {
+  try {
+    const existing = await prisma.user.findUnique({
+      where: { email }
+    });
+    if (existing) {
+      return { success: false, error: "Email đã được sử dụng." };
+    }
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: password,
+        role: "user"
+      }
+    });
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 11. Comment Actions
+export async function getCommentsDb(storyId: string) {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { storyId, deletedAt: null },
+      include: {
+        user: {
+          select: { name: true, avatar: true }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+    return {
+      success: true,
+      data: comments.map(c => ({
+        id: c.id,
+        content: c.content,
+        createdAt: c.createdAt.toISOString(),
+        userName: c.user.name,
+        userAvatar: c.user.avatar,
+        userId: c.userId
+      }))
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createCommentDb(storyId: string, userId: string, content: string) {
+  try {
+    const comment = await prisma.comment.create({
+      data: {
+        storyId,
+        userId,
+        content
+      },
+      include: {
+        user: {
+          select: { name: true, avatar: true }
+        }
+      }
+    });
+    return {
+      success: true,
+      data: {
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt.toISOString(),
+        userName: comment.user.name,
+        userAvatar: comment.user.avatar,
+        userId: comment.userId
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCommentDb(commentId: string, userId: string) {
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId }
+    });
+    if (!comment) {
+      return { success: false, error: "Bình luận không tồn tại." };
+    }
+    if (comment.userId !== userId) {
+      return { success: false, error: "Bạn không có quyền xóa bình luận này." };
+    }
+    await prisma.comment.delete({
+      where: { id: commentId }
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 12. Rating Actions
+export async function getUserRatingDb(storyId: string, userId: string) {
+  try {
+    const r = await prisma.rating.findUnique({
+      where: {
+        userId_storyId: { userId, storyId }
+      }
+    });
+    return { success: true, data: r ? r.rating : 0 };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function submitRatingDb(storyId: string, userId: string, ratingValue: number) {
+  try {
+    await prisma.rating.upsert({
+      where: {
+        userId_storyId: { userId, storyId }
+      },
+      update: {
+        rating: ratingValue
+      },
+      create: {
+        userId,
+        storyId,
+        rating: ratingValue
+      }
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// 13. Reading History Actions
+export async function saveReadingHistoryDb(userId: string, storyId: string, chapterId: string) {
+  try {
+    await prisma.readingHistory.create({
+      data: {
+        userId,
+        storyId,
+        chapterId
+      }
+    });
+    
+    await prisma.readingProgress.upsert({
+      where: {
+        userId_storyId: { userId, storyId }
+      },
+      update: {
+        chapterId,
+        updatedAt: new Date()
+      },
+      create: {
+        userId,
+        storyId,
+        chapterId
+      }
+    });
+    
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getReadingHistoryDb(userId: string) {
+  try {
+    const history = await prisma.readingHistory.findMany({
+      where: { userId },
+      include: {
+        story: {
+          include: {
+            author: true,
+            categories: { include: { category: true } }
+          }
+        },
+        chapter: true
+      },
+      orderBy: { readAt: "desc" }
+    });
+
+    const seenStories = new Set<string>();
+    const result = [];
+    
+    for (const h of history) {
+      if (seenStories.has(h.storyId)) continue;
+      seenStories.add(h.storyId);
+      
+      result.push({
+        story: {
+          id: h.story.id,
+          title: h.story.title,
+          slug: h.story.slug,
+          type: h.story.contentType.toUpperCase() as "NOVEL" | "MANGA",
+          status: (h.story.status.charAt(0).toUpperCase() + h.story.status.slice(1)) as any,
+          author: h.story.author.name,
+          rating: 4.8, 
+          views: String(h.story.views),
+          tags: h.story.categories.map(c => c.category.name),
+          description: h.story.description || "",
+          coverClass: "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
+          coverUrl: h.story.coverImage || undefined,
+        },
+        chapter: h.chapter.chapterNumber ? `Chương ${h.chapter.chapterNumber} - ${h.chapter.title}` : h.chapter.title,
+        progress: 100 
+      });
+    }
+
+    return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
