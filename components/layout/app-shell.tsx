@@ -3,17 +3,9 @@ import { SearchBar } from "@/components/navigation/search-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ActiveLink } from "./active-link";
 
-const tabs = [
-  { label: "TẤT CẢ", href: "/stories" },
-  { label: "TRUYỆN CHỮ", href: "/stories?type=novel" },
-  { label: "MANGA", href: "/stories?type=manga" }
-];
-
-const sidebar = [
+const navItems = [
   { label: "Trang chủ", href: "/" },
   { label: "Thư viện", href: "/stories" },
-  { label: "Đọc chữ", href: "/read/novel" },
-  { label: "Đọc manga", href: "/read/manga" },
   { label: "Hồ sơ", href: "/profile" },
   { label: "Quản trị", href: "/admin" }
 ];
@@ -34,15 +26,6 @@ const bottomNavItems = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mx-auto">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-      </svg>
-    )
-  },
-  {
-    label: "Đọc truyện",
-    href: "/read/novel",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mx-auto">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     )
   },
@@ -71,65 +54,53 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-frame">
       <header className="top-nav">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">
-              D7
-            </span>
-            <span className="hidden text-lg font-black text-ink sm:inline">
-              DocTruyen247
-            </span>
-          </Link>
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 justify-between">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">
+                D7
+              </span>
+              <span className="hidden text-lg font-black text-ink sm:inline">
+                DocTruyen247
+              </span>
+            </Link>
 
-          <div className="hidden flex-1 md:block">
-            <SearchBar />
+            <nav className="hidden items-center gap-1 md:flex">
+              {navItems.map((item) => (
+                <ActiveLink
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-lg px-3.5 py-2 text-sm font-bold transition text-subtle hover:text-ink hover:bg-muted"
+                  activeClassName="!bg-primary !text-white shadow-sm"
+                >
+                  {item.label}
+                </ActiveLink>
+              ))}
+            </nav>
           </div>
 
-          <nav className="hidden items-center rounded-lg bg-muted p-1 lg:flex">
-            {tabs.map((tab) => (
-              <ActiveLink
-                key={tab.label}
-                href={tab.href}
-                checkQuery
-                className="rounded-lg px-3 py-2 text-xs font-black transition text-subtle hover:text-ink"
-                activeClassName="!bg-surface !text-primary shadow-sm"
-              >
-                {tab.label}
-              </ActiveLink>
-            ))}
-          </nav>
+          <div className="flex items-center gap-3">
+            <div className="hidden w-64 md:block">
+              <SearchBar />
+            </div>
 
-          <ThemeToggle />
-          <Link
-            href="/profile"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-xs font-black text-subtle"
-          >
-            TÔI
-          </Link>
+            <ThemeToggle />
+            <Link
+              href="/profile"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-xs font-black text-subtle"
+            >
+              TÔI
+            </Link>
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1600px] gap-6 px-4 pb-24 pt-20 lg:grid-cols-[220px_1fr] lg:pb-8">
-        <aside className="surface-panel hidden p-3 lg:sticky lg:top-24 lg:block lg:self-start">
-          <nav className="space-y-1">
-            {sidebar.map((item) => (
-              <ActiveLink
-                key={item.href}
-                href={item.href}
-                className="block rounded-lg px-3 py-2 text-sm font-bold transition text-subtle hover:bg-muted hover:text-ink"
-                activeClassName="!bg-primary !text-white"
-              >
-                {item.label}
-              </ActiveLink>
-            ))}
-          </nav>
-        </aside>
-
+      <div className="mx-auto max-w-[1600px] px-4 pb-24 pt-24 lg:pb-8">
         <main className="min-w-0">{children}</main>
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-2 py-1.5 backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+        <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
           {bottomNavItems.map((item) => (
             <ActiveLink
               key={item.href}

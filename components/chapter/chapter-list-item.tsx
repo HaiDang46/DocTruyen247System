@@ -1,4 +1,3 @@
-import { TagBadge } from "@/components/tag-badge";
 import type { Chapter } from "@/lib/mock-data";
 
 type ChapterListItemProps = {
@@ -12,9 +11,6 @@ export function ChapterListItem({ chapter }: ChapterListItemProps) {
         <p className="text-sm font-black text-ink">Chương {chapter.number}</p>
         <p className="mt-1 truncate text-sm text-subtle">{chapter.title}</p>
       </div>
-      <TagBadge tone={chapter.isPremium ? "amber" : "green"}>
-        {chapter.isPremium ? "trả phí" : "miễn phí"}
-      </TagBadge>
     </div>
   );
 }

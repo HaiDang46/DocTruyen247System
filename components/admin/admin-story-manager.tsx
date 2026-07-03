@@ -30,6 +30,7 @@ type StoryFormState = {
   status: Story["status"];
   tags: string;
   sourceUrl: string;
+  coverUrl: string;
   description: string;
 };
 
@@ -77,6 +78,36 @@ const supportedMangaImageTypes = new Set([
   "image/webp",
 ]);
 
+function fileToBase64(file: File | Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+function getMimeType(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "png": return "image/png";
+    case "webp": return "image/webp";
+    case "gif": return "image/gif";
+    case "svg": return "image/svg+xml";
+    case "avif": return "image/avif";
+    case "jpg":
+    case "jpeg":
+    default:
+      return "image/jpeg";
+  }
+}
+
+async function fileToBase64WithMime(file: File | Blob, filename: string): Promise<string> {
+  const mimeType = getMimeType(filename);
+  const imageBlob = new Blob([file], { type: mimeType });
+  return fileToBase64(imageBlob);
+}
+
 function isSupportedMangaImageName(name: string) {
   return /\.(jpe?g|png|webp)$/i.test(name);
 }
@@ -117,6 +148,7 @@ function createStoryFromForm(form: StoryFormState, index: number): Story {
     latestChapter: form.type === "NOVEL" ? "Chưa có chương" : "Chưa có tập",
     tags,
     sourceUrl: form.sourceUrl.trim() || undefined,
+    coverUrl: form.coverUrl || undefined,
     description: form.description.trim(),
     coverClass: coverClasses[index % coverClasses.length],
   };
@@ -130,6 +162,7 @@ function toStoryForm(story: Story): StoryFormState {
     status: story.status,
     tags: story.tags.join(", "),
     sourceUrl: story.sourceUrl ?? "",
+    coverUrl: story.coverUrl ?? "",
     description: story.description,
   };
 }
@@ -337,6 +370,7 @@ export function AdminStoryManager() {
         : (storyForm.type === "NOVEL" ? "Chương 0" : "Tập 0"),
       tags: tagsArray,
       sourceUrl: storyForm.sourceUrl.trim() || undefined,
+      coverUrl: storyForm.coverUrl || undefined,
       description: storyForm.description.trim(),
       coverClass: "bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900",
     };
@@ -351,6 +385,7 @@ export function AdminStoryManager() {
           type: nextStory.type,
           status: nextStory.status,
           tags: nextStory.tags,
+          coverImage: nextStory.coverUrl,
           description: nextStory.description
         });
         setImportLoading(false);
@@ -368,6 +403,7 @@ export function AdminStoryManager() {
           type: nextStory.type,
           status: nextStory.status,
           tags: nextStory.tags,
+          coverImage: nextStory.coverUrl,
           description: nextStory.description
         });
         setImportLoading(false);
@@ -464,7 +500,7 @@ export function AdminStoryManager() {
           title: chapterForm.title.trim(),
           isPremium: chapterForm.isPremium,
           content: selectedStory.type === "NOVEL" ? chapterForm.content.trim() : undefined,
-          imageUrls: selectedStory.type === "MANGA" ? chapterForm.imageUrls : undefined,
+          imageUrlsJson: selectedStory.type === "MANGA" ? JSON.stringify(chapterForm.imageUrls) : undefined,
           imageNames: selectedStory.type === "MANGA" ? chapterForm.imageNames : undefined,
         });
         setImportLoading(false);
@@ -495,7 +531,7 @@ export function AdminStoryManager() {
           title: chapterForm.title.trim(),
           isPremium: chapterForm.isPremium,
           content: selectedStory.type === "NOVEL" ? chapterForm.content.trim() : undefined,
-          imageUrls: selectedStory.type === "MANGA" ? chapterForm.imageUrls : undefined,
+          imageUrlsJson: selectedStory.type === "MANGA" ? JSON.stringify(chapterForm.imageUrls) : undefined,
           imageNames: selectedStory.type === "MANGA" ? chapterForm.imageNames : undefined,
         });
         setImportLoading(false);
@@ -622,6 +658,23 @@ export function AdminStoryManager() {
     });
   }
 
+  async function handleCoverUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const base64 = await fileToBase64WithMime(file, file.name);
+      setStoryForm((form) => ({
+        ...form,
+        coverUrl: base64,
+      }));
+    } catch (err) {
+      alert("Lỗi tải ảnh bìa: " + err);
+    } finally {
+      event.target.value = "";
+    }
+  }
+
   async function handleTextFileUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -697,7 +750,7 @@ export function AdminStoryManager() {
       if (files.length === 1 && (extension === "zip" || extension === "cbz")) {
         setChapterForm((form) => ({
           ...form,
-          uploadNote: "Đang giải nén file ảnh...",
+          uploadNote: "Đang giải nén và chuyển đổi hình ảnh...",
         }));
         
         const zip = await JSZip.loadAsync(firstFile);
@@ -708,9 +761,10 @@ export function AdminStoryManager() {
         const images = await Promise.all(
           imageEntries.map(async (entry) => {
             const blob = await entry.async("blob");
+            const base64 = await fileToBase64WithMime(blob, entry.name);
             return {
               name: entry.name.split("/").pop() ?? entry.name,
-              url: URL.createObjectURL(blob),
+              url: base64,
             };
           })
         );
@@ -736,11 +790,26 @@ export function AdminStoryManager() {
 
         setChapterForm((form) => ({
           ...form,
-          imageUrls: imageFiles.map((file) => URL.createObjectURL(file)),
-          imageNames: imageFiles.map((file) => file.name),
+          uploadNote: "Đang xử lý hình ảnh...",
+        }));
+
+        const images = await Promise.all(
+          imageFiles.map(async (file) => {
+            const base64 = await fileToBase64WithMime(file, file.name);
+            return {
+              name: file.name,
+              url: base64,
+            };
+          })
+        );
+
+        setChapterForm((form) => ({
+          ...form,
+          imageUrls: images.map((img) => img.url),
+          imageNames: images.map((img) => img.name),
           uploadNote:
-            imageFiles.length > 0
-              ? `Đã chọn ${imageFiles.length} ảnh.`
+            images.length > 0
+              ? `Đã chọn ${images.length} ảnh.`
               : "Chưa chọn ảnh hợp lệ.",
         }));
       }
@@ -852,7 +921,7 @@ export function AdminStoryManager() {
               title: chap.title || (imported.type === "NOVEL" ? `Chương ${i + 1}` : `Tập ${i + 1}`),
               isPremium: false,
               content: chap.content,
-              imageUrls: chap.imageUrls,
+              imageUrlsJson: chap.imageUrls ? JSON.stringify(chap.imageUrls) : undefined,
               imageNames: chap.imageNames,
             });
           }
@@ -1119,17 +1188,39 @@ export function AdminStoryManager() {
                       setStoryForm((form) => ({ ...form, tags: event.target.value }))
                     }
                   />
-                  <input
-                    className="soft-control w-full px-3 py-2.5 text-sm outline-none"
-                    placeholder="Dán link nguồn truyện, ví dụ https://..."
-                    value={storyForm.sourceUrl}
-                    onChange={(event) =>
-                      setStoryForm((form) => ({
-                        ...form,
-                        sourceUrl: event.target.value,
-                      }))
-                    }
-                  />
+                  <div className="space-y-1.5 rounded-lg border border-line bg-canvas p-3">
+                    <label className="block text-xs font-bold text-ink">
+                      Ảnh bìa truyện (Tải ảnh lên)
+                    </label>
+                    <input
+                      className="w-full text-xs text-subtle"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverUpload}
+                    />
+                    {storyForm.coverUrl ? (
+                      <div className="mt-2 flex items-center gap-3">
+                        <div className="relative h-20 w-14 overflow-hidden rounded border border-line bg-muted">
+                          <img
+                            src={storyForm.coverUrl}
+                            alt="Ảnh bìa"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setStoryForm((form) => ({ ...form, coverUrl: "" }))}
+                          className="rounded border border-rose-200 px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950"
+                        >
+                          Xóa ảnh bìa
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-subtle">
+                        Chưa chọn ảnh bìa. Sẽ sử dụng màu nền mặc định.
+                      </p>
+                    )}
+                  </div>
                   <textarea
                     className="soft-control min-h-24 w-full px-3 py-2.5 text-sm outline-none"
                     placeholder="Mô tả ngắn"
@@ -1388,19 +1479,6 @@ export function AdminStoryManager() {
                       )}
                     </div>
                   )}
-                  <label className="flex items-center gap-2 rounded-lg border border-line bg-canvas px-3 py-2.5 text-xs font-semibold text-subtle">
-                    <input
-                      type="checkbox"
-                      checked={chapterForm.isPremium}
-                      onChange={(event) =>
-                        setChapterForm((form) => ({
-                          ...form,
-                          isPremium: event.target.checked,
-                        }))
-                      }
-                    />
-                    Chương trả phí
-                  </label>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <button className="button-primary text-xs py-2.5" type="submit">
                       {editingChapterId ? "Cập nhật" : "Thêm chương"}

@@ -39,7 +39,7 @@ export default function HomePage() {
   return (
     <div className="space-y-10">
       {trending.length > 0 ? (
-        <HeroBanner stories={trending.slice(0, 3)} />
+        <HeroBanner stories={trending} />
       ) : null}
 
       <section className="space-y-4">

@@ -266,9 +266,17 @@ export async function updateStoryDb(storyId: string, data: {
 // 4. Delete Story
 export async function deleteStoryDb(storyId: string) {
   try {
-    await prisma.story.delete({
-      where: { id: storyId }
-    });
+    await prisma.$transaction([
+      prisma.comment.deleteMany({ where: { storyId } }),
+      prisma.rating.deleteMany({ where: { storyId } }),
+      prisma.favorite.deleteMany({ where: { storyId } }),
+      prisma.follow.deleteMany({ where: { storyId } }),
+      prisma.readingHistory.deleteMany({ where: { storyId } }),
+      prisma.readingProgress.deleteMany({ where: { storyId } }),
+      prisma.storyCategory.deleteMany({ where: { storyId } }),
+      prisma.chapter.deleteMany({ where: { storyId } }),
+      prisma.story.delete({ where: { id: storyId } }),
+    ]);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -320,14 +328,21 @@ export async function createChapterDb(data: {
   title: string;
   isPremium: boolean;
   content?: string;
-  imageUrls?: string[];
+  imageUrlsJson?: string;
   imageNames?: string[];
 }) {
   try {
+    let imageUrls: string[] = [];
+    if (data.imageUrlsJson) {
+      try {
+        imageUrls = JSON.parse(data.imageUrlsJson);
+      } catch (e) {}
+    }
+
     let imageManifest: string | null = null;
-    if (data.imageUrls || data.imageNames) {
+    if (imageUrls.length > 0 || data.imageNames) {
       imageManifest = JSON.stringify({
-        imageUrls: data.imageUrls || [],
+        imageUrls,
         imageNames: data.imageNames || []
       });
     }
@@ -354,14 +369,21 @@ export async function updateChapterDb(chapterId: string, data: {
   title: string;
   isPremium: boolean;
   content?: string;
-  imageUrls?: string[];
+  imageUrlsJson?: string;
   imageNames?: string[];
 }) {
   try {
+    let imageUrls: string[] = [];
+    if (data.imageUrlsJson) {
+      try {
+        imageUrls = JSON.parse(data.imageUrlsJson);
+      } catch (e) {}
+    }
+
     let imageManifest: string | null = null;
-    if (data.imageUrls || data.imageNames) {
+    if (imageUrls.length > 0 || data.imageNames) {
       imageManifest = JSON.stringify({
-        imageUrls: data.imageUrls || [],
+        imageUrls,
         imageNames: data.imageNames || []
       });
     }

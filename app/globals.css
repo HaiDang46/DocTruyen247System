@@ -216,6 +216,15 @@ textarea {
     @apply fixed bottom-20 right-4 z-30 hidden w-80 rounded-lg border border-line bg-surface p-4 xl:block;
     box-shadow: 0 22px 55px rgb(15 23 42 / 0.14);
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
