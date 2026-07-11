@@ -131,7 +131,7 @@ function AppShellContent({ children }) {
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
-              {navItems.map((item) => (
+              {navItems.filter(item => item.href !== "/admin" || (user && user.role === 99)).map((item) => (
                 <ActiveLink
                   key={item.href}
                   href={item.href}
@@ -216,7 +216,7 @@ function AppShellContent({ children }) {
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-2 py-1.5 backdrop-blur lg:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
-          {bottomNavItems.map((item) => (
+          {bottomNavItems.filter(item => item.href !== "/admin" || (user && user.role === 99)).map((item) => (
             <ActiveLink
               key={item.href}
               href={item.href}

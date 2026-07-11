@@ -5,6 +5,7 @@ const nextConfig = {
       bodySizeLimit: '50mb',
     },
   },
+  serverExternalPackages: ['msnodesqlv8', 'mssql'],
 };
 
 export default nextConfig;

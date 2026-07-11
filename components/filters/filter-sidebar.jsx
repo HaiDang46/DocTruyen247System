@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { categories } from "@/lib/mock-data";
 
-const status = ["Tất cả", "Đang ra", "Hoàn thành", "Tạm ngưng"];
+const statusList = ["Tất cả", "Đang ra", "Hoàn thành", "Tạm ngưng"];
 const types = ["Tất cả", "Truyện chữ", "Manga"];
 
-export function FilterSidebar() {
+export function FilterSidebar({
+  activeCategory,
+  setActiveCategory,
+  activeType,
+  setActiveType,
+  activeStatus,
+  setActiveStatus,
+  sortOption,
+  setSortOption,
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -31,11 +40,26 @@ export function FilterSidebar() {
       >
         <div>
           <p className="text-sm font-black text-ink">Thể loại</p>
-          <div className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-2">
+          <div className="mt-3 flex flex-wrap gap-2 lg:block lg:space-y-2 lg:max-h-[300px] lg:overflow-y-auto pr-2 custom-scrollbar">
+            <button
+              onClick={() => setActiveCategory("Tất cả")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition lg:w-full lg:text-left ${
+                activeCategory === "Tất cả"
+                  ? "border-primary bg-primary text-white"
+                  : "border-line bg-canvas text-subtle hover:border-primary hover:text-primary"
+              }`}
+            >
+              Tất cả
+            </button>
             {categories.map((category) => (
               <button
                 key={category}
-                className="rounded-lg border border-line bg-canvas px-3 py-2 text-sm font-semibold text-subtle transition hover:border-primary hover:text-primary lg:w-full lg:text-left"
+                onClick={() => setActiveCategory(category)}
+                className={`rounded-lg border px-3 py-2 text-sm font-semibold transition lg:w-full lg:text-left ${
+                  activeCategory === category
+                    ? "border-primary bg-primary text-white"
+                    : "border-line bg-canvas text-subtle hover:border-primary hover:text-primary"
+                }`}
               >
                 {category}
               </button>
@@ -46,11 +70,12 @@ export function FilterSidebar() {
         <div>
           <p className="text-sm font-black text-ink">Loại truyện</p>
           <div className="mt-3 grid grid-cols-3 gap-2 lg:grid-cols-1">
-            {types.map((type, index) => (
+            {types.map((type) => (
               <button
                 key={type}
+                onClick={() => setActiveType(type)}
                 className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-                  index === 0
+                  activeType === type
                     ? "border-primary bg-primary text-white"
                     : "border-line bg-canvas text-subtle hover:border-primary hover:text-primary"
                 }`}
@@ -63,20 +88,28 @@ export function FilterSidebar() {
 
         <div>
           <p className="text-sm font-black text-ink">Trạng thái</p>
-          <select className="mt-3 w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm font-semibold text-ink outline-none transition focus:border-primary">
-            {status.map((item) => (
-              <option key={item}>{item}</option>
+          <select
+            value={activeStatus}
+            onChange={(e) => setActiveStatus(e.target.value)}
+            className="mt-3 w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm font-semibold text-ink outline-none transition focus:border-primary"
+          >
+            {statusList.map((item) => (
+              <option key={item} value={item}>{item}</option>
             ))}
           </select>
         </div>
 
         <div>
           <p className="text-sm font-black text-ink">Sắp xếp</p>
-          <select className="mt-3 w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm font-semibold text-ink outline-none transition focus:border-primary">
-            <option>Đang thịnh hành</option>
-            <option>Mới cập nhật</option>
-            <option>Đánh giá cao</option>
-            <option>Xem nhiều nhất</option>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="mt-3 w-full rounded-lg border border-line bg-canvas px-3 py-3 text-sm font-semibold text-ink outline-none transition focus:border-primary"
+          >
+            <option value="Mới cập nhật">Mới cập nhật</option>
+            <option value="Đang thịnh hành">Đang thịnh hành</option>
+            <option value="Đánh giá cao">Đánh giá cao</option>
+            <option value="Xem nhiều nhất">Xem nhiều nhất</option>
           </select>
         </div>
       </div>

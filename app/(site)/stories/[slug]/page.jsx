@@ -23,6 +23,10 @@ import {
   deleteCommentDb,
   getUserRatingDb,
   submitRatingDb,
+  checkStoryUserStatusDb,
+  toggleFavoriteDb,
+  toggleFollowDb,
+  incrementStoryViewsDb,
 } from "@/lib/actions";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/auth-modal";
@@ -34,9 +38,13 @@ export default function StoryDetailPage({ params }) {
   const [chapters, setChapters] = useState([]);
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
+  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     isDbConnected().then((connected) => {
@@ -44,8 +52,10 @@ export default function StoryDetailPage({ params }) {
         getStoriesDb().then((res) => {
           if (res.success && res.data) {
             setStories(res.data);
-            const foundStory = res.data.find((item) => item.slug === slug);
+            const decodedSlug = decodeURIComponent(slug);
+            const foundStory = res.data.find((item) => item.slug === decodedSlug || item.slug === slug);
             if (foundStory) {
+              incrementStoryViewsDb(foundStory.id);
               getChaptersDb(foundStory.id).then((chapRes) => {
                 if (chapRes.success && chapRes.data) {
                   setChapters(chapRes.data);
@@ -64,6 +74,13 @@ export default function StoryDetailPage({ params }) {
                 getUserRatingDb(foundStory.id, user.id).then((rateRes) => {
                   if (rateRes.success && rateRes.data !== undefined) {
                     setUserRating(rateRes.data);
+                  }
+                });
+
+                checkStoryUserStatusDb(user.id, foundStory.id).then((statusRes) => {
+                  if (statusRes.success && statusRes.data) {
+                    setIsFavorited(statusRes.data.isFavorited);
+                    setIsFollowing(statusRes.data.isFollowing);
                   }
                 });
               }
@@ -90,15 +107,22 @@ export default function StoryDetailPage({ params }) {
         } else {
           setChapters(mockChapters.map((c) => ({ ...c, storyId: "story-1" })));
         }
+
+        const favs = JSON.parse(localStorage.getItem("doc_truyen_favorites") || "[]");
+        const follows = JSON.parse(localStorage.getItem("doc_truyen_follows") || "[]");
+        const currStory = (stories && stories.length > 0 ? stories : mockStories).find((item) => item.slug === slug) ?? mockStories[0];
+        setIsFavorited(favs.includes(currStory.id));
+        setIsFollowing(follows.includes(currStory.id));
       }
     });
   }, [slug, user?.id]);
 
-  const story = stories.find((item) => item.slug === slug) ?? stories[0];
+  const decodedSlug = decodeURIComponent(slug);
+  const story = stories.find((item) => item.slug === decodedSlug || item.slug === slug) ?? stories[0];
 
   // Filter chapters belonging to this story
   const storyChapters = chapters
-    .filter((c) => c.storyId === story.id)
+    .filter((c) => c.storyId?.toLowerCase() === story.id?.toLowerCase())
     .sort((a, b) => b.number - a.number);
   async function handleCommentSubmit(e) {
     e.preventDefault();
@@ -109,6 +133,63 @@ export default function StoryDetailPage({ params }) {
       setCommentInput("");
     } else {
       alert("Lỗi đăng bình luận: " + res.error);
+    }
+  }
+
+  async function handleDeleteComment(commentId) {
+    const res = await deleteCommentDb(commentId, user.id);
+    if (res.success) {
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } else {
+      alert("Lỗi xóa bình luận: " + res.error);
+    }
+  }
+
+  async function handleToggleFavorite() {
+    if (!user) {
+      const connected = await isDbConnected();
+      if (!connected) {
+        let favs = JSON.parse(localStorage.getItem("doc_truyen_favorites") || "[]");
+        if (favs.includes(story.id)) {
+          favs = favs.filter((id) => id !== story.id);
+          setIsFavorited(false);
+        } else {
+          favs.push(story.id);
+          setIsFavorited(true);
+        }
+        localStorage.setItem("doc_truyen_favorites", JSON.stringify(favs));
+        return;
+      }
+      setIsAuthOpen(true);
+      return;
+    }
+    const res = await toggleFavoriteDb(user.id, story.id);
+    if (res.success) {
+      setIsFavorited(res.data.isFavorited);
+    }
+  }
+
+  async function handleToggleFollow() {
+    if (!user) {
+      const connected = await isDbConnected();
+      if (!connected) {
+        let follows = JSON.parse(localStorage.getItem("doc_truyen_follows") || "[]");
+        if (follows.includes(story.id)) {
+          follows = follows.filter((id) => id !== story.id);
+          setIsFollowing(false);
+        } else {
+          follows.push(story.id);
+          setIsFollowing(true);
+        }
+        localStorage.setItem("doc_truyen_follows", JSON.stringify(follows));
+        return;
+      }
+      setIsAuthOpen(true);
+      return;
+    }
+    const res = await toggleFollowDb(user.id, story.id);
+    if (res.success) {
+      setIsFollowing(res.data.isFollowing);
     }
   }
 
@@ -130,9 +211,27 @@ export default function StoryDetailPage({ params }) {
                 >
                   Đọc ngay
                 </Link>
-                <button className="button-ghost">Theo dõi</button>
-                <button className="button-ghost">Yêu thích</button>
-                <button className="button-ghost">Chia sẻ</button>
+                <button 
+                  onClick={handleToggleFollow}
+                  className={`button-ghost ${isFollowing ? 'text-primary border-primary bg-primary/10' : ''}`}
+                >
+                  {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+                </button>
+                <button 
+                  onClick={handleToggleFavorite}
+                  className={`button-ghost ${isFavorited ? 'text-rose-500 border-rose-500 bg-rose-500/10' : ''}`}
+                >
+                  {isFavorited ? 'Đã yêu thích' : 'Yêu thích'}
+                </button>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Đã sao chép liên kết thành công!");
+                  }}
+                  className="button-ghost"
+                >
+                  Chia sẻ
+                </button>
                 {story.sourceUrl ? (
                   <a
                     href={story.sourceUrl}
@@ -383,13 +482,13 @@ export default function StoryDetailPage({ params }) {
                     className="pt-4 flex gap-3 items-start group"
                   >
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primarySoft text-xs font-black text-primary uppercase flex-shrink-0">
-                      {comment.userName.charAt(0)}
+                      {(comment.userName || comment.user?.name || "U").charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-xs font-black text-ink">
-                            {comment.userName}
+                            {comment.userName || comment.user?.name || "Người dùng ẩn danh"}
                           </span>
                           <span className="text-[10px] text-subtle ml-2">
                             {new Date(comment.createdAt).toLocaleDateString(
@@ -401,25 +500,9 @@ export default function StoryDetailPage({ params }) {
                             )}
                           </span>
                         </div>
-                        {user && user.id === comment.userId && (
-                          <button
-                            onClick={async () => {
-                              if (
-                                confirm(
-                                  "Bạn có chắc chắn muốn xóa bình luận này?",
-                                )
-                              ) {
-                                const res = await deleteCommentDb(
-                                  comment.id,
-                                  user.id,
-                                );
-                                if (res.success) {
-                                  setComments(
-                                    comments.filter((c) => c.id !== comment.id),
-                                  );
-                                }
-                              }
-                            }}
+                        {user && user.id === comment.user?.id && (
+                          <button 
+                            onClick={() => setCommentToDelete(comment.id)}
                             className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-rose-600 hover:underline transition"
                             type="button"
                           >
@@ -445,6 +528,33 @@ export default function StoryDetailPage({ params }) {
 
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+
+      {/* Delete Comment Modal */}
+      {commentToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-black text-ink mb-2">Xác nhận xóa</h3>
+            <p className="text-sm text-subtle mb-6">Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.</p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setCommentToDelete(null)}
+                className="px-4 py-2 text-xs font-bold text-ink bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition"
+              >
+                Hủy bỏ
+              </button>
+              <button 
+                onClick={() => {
+                  handleDeleteComment(commentToDelete);
+                  setCommentToDelete(null);
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition shadow-lg shadow-rose-600/20"
+              >
+                Đồng ý xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

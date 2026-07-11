@@ -4,11 +4,10 @@ CREATE TABLE users (
   password_hash NVARCHAR(255) NOT NULL,
   name NVARCHAR(120) NOT NULL,
   avatar NVARCHAR(500) NULL,
-  role NVARCHAR(30) NOT NULL DEFAULT 'user',
+  role INT NOT NULL DEFAULT 0,
   created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
   updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-  deleted_at DATETIME2 NULL,
-  CONSTRAINT ck_users_role CHECK (role IN ('user', 'admin', 'author', 'moderator'))
+  deleted_at DATETIME2 NULL
 );
 
 CREATE TABLE user_profiles (
@@ -93,9 +92,9 @@ CREATE TABLE chapters (
   created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
   updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
   deleted_at DATETIME2 NULL,
-  CONSTRAINT fk_chapters_story FOREIGN KEY (story_id) REFERENCES stories(id) ON DELETE CASCADE,
-  CONSTRAINT ux_chapters_story_chapter_number UNIQUE (story_id, chapter_number)
+  CONSTRAINT fk_chapters_story FOREIGN KEY (story_id) REFERENCES stories(id) ON DELETE CASCADE
 );
+CREATE UNIQUE NONCLUSTERED INDEX ux_chapters_story_chapter_number ON chapters(story_id, chapter_number) WHERE deleted_at IS NULL;
 
 CREATE TABLE comments (
   id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,

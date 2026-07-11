@@ -162,6 +162,8 @@ export function AdminStoryManager() {
   const [isMounted, setIsMounted] = useState(false);
 
   const [scrapeUrl, setScrapeUrl] = useState("");
+  const [bulkStatus, setBulkStatus] = useState("Idle");
+
   const [scraping, setScraping] = useState(false);
 
   async function handleScrapeClick() {
@@ -492,13 +494,15 @@ export function AdminStoryManager() {
   async function handleChapterSubmit(event) {
     event.preventDefault();
 
-    if (!selectedStory || !chapterForm.title.trim()) {
+    if (!selectedStory) {
       return;
     }
 
     const chapterNumber =
       Number(chapterForm.number) ||
-      Math.max(0, ...selectedChapters.map((chapter) => chapter.number)) + 1;
+      (selectedChapters.length > 0 ? Math.max(0, ...selectedChapters.map((chapter) => chapter.number)) + 1 : 1);
+
+    const chapterTitle = chapterForm.title.trim() || (selectedStory.type === "NOVEL" ? `Chương ${chapterNumber}` : `Tập ${chapterNumber}`);
 
     if (dbConnected) {
       setImportLoading(true);
@@ -506,7 +510,7 @@ export function AdminStoryManager() {
       if (editingChapterId) {
         const res = await updateChapterDb(editingChapterId, {
           number: chapterNumber,
-          title: chapterForm.title.trim(),
+          title: chapterTitle,
           isPremium: chapterForm.isPremium,
           content:
             selectedStory.type === "NOVEL"
@@ -527,7 +531,7 @@ export function AdminStoryManager() {
                 ? {
                     ...chapter,
                     number: chapterNumber,
-                    title: chapterForm.title.trim(),
+                    title: chapterTitle,
                     isPremium: chapterForm.isPremium,
                     content:
                       selectedStory.type === "NOVEL"
@@ -553,7 +557,7 @@ export function AdminStoryManager() {
         const res = await createChapterDb({
           storyId: selectedStory.id,
           number: chapterNumber,
-          title: chapterForm.title.trim(),
+          title: chapterTitle,
           isPremium: chapterForm.isPremium,
           content:
             selectedStory.type === "NOVEL"
@@ -572,7 +576,7 @@ export function AdminStoryManager() {
             id: res.data.id,
             storyId: selectedStory.id,
             number: chapterNumber,
-            title: chapterForm.title.trim(),
+            title: chapterTitle,
             isPremium: chapterForm.isPremium,
             content:
               selectedStory.type === "NOVEL"
@@ -616,7 +620,7 @@ export function AdminStoryManager() {
               ? {
                   ...chapter,
                   number: chapterNumber,
-                  title: chapterForm.title.trim(),
+                  title: chapterTitle,
                   isPremium: chapterForm.isPremium,
                   content:
                     selectedStory.type === "NOVEL" && chapterForm.content.trim()
@@ -642,7 +646,7 @@ export function AdminStoryManager() {
           id: `chapter-local-${Date.now()}`,
           storyId: selectedStory.id,
           number: chapterNumber,
-          title: chapterForm.title.trim(),
+          title: chapterTitle,
           isPremium: chapterForm.isPremium,
           content:
             selectedStory.type === "NOVEL" && chapterForm.content.trim()

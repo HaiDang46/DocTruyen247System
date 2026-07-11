@@ -14,6 +14,7 @@ export function AuthModal({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [success, setSuccess] = useState("");
 
   if (!isOpen) return null;
 
@@ -21,13 +22,15 @@ export function AuthModal({ isOpen, onClose }) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       if (tab === "login") {
         const res = await loginUserDb(email.trim(), password);
         if (res.success && res.data) {
           login(res.data);
-          onClose();
+          setSuccess("Đăng nhập thành công!");
+          setTimeout(() => onClose(), 1500);
         } else {
           setError(res.error || "Đăng nhập thất bại");
         }
@@ -40,7 +43,8 @@ export function AuthModal({ isOpen, onClose }) {
         const res = await registerUserDb(name.trim(), email.trim(), password);
         if (res.success && res.data) {
           login(res.data);
-          onClose();
+          setSuccess("Đăng ký thành công!");
+          setTimeout(() => onClose(), 1500);
         } else {
           setError(res.error || "Đăng ký thất bại");
         }
@@ -83,6 +87,7 @@ export function AuthModal({ isOpen, onClose }) {
             onClick={() => {
               setTab("login");
               setError("");
+              setSuccess("");
             }}
             className={`flex-1 rounded-md py-1.5 text-xs font-bold transition ${
               tab === "login"
@@ -96,6 +101,7 @@ export function AuthModal({ isOpen, onClose }) {
             onClick={() => {
               setTab("register");
               setError("");
+              setSuccess("");
             }}
             className={`flex-1 rounded-md py-1.5 text-xs font-bold transition ${
               tab === "register"
@@ -114,8 +120,15 @@ export function AuthModal({ isOpen, onClose }) {
           </div>
         )}
 
+        {/* Success message */}
+        {success && (
+          <div className="mb-4 rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-xs font-semibold text-emerald-600 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-400 text-center">
+            ✅ {success}
+          </div>
+        )}
+
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           {tab === "register" && (
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider text-subtle">
@@ -128,6 +141,7 @@ export function AuthModal({ isOpen, onClose }) {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm font-semibold text-ink placeholder-slate-400 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
                 required
+                autoComplete="off"
               />
             </div>
           )}
@@ -143,6 +157,7 @@ export function AuthModal({ isOpen, onClose }) {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm font-semibold text-ink placeholder-slate-400 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
               required
+              autoComplete="off"
             />
           </div>
 
@@ -157,6 +172,7 @@ export function AuthModal({ isOpen, onClose }) {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border border-line bg-canvas px-3.5 py-2.5 text-sm font-semibold text-ink placeholder-slate-400 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20"
               required
+              autoComplete="new-password"
             />
           </div>
 
