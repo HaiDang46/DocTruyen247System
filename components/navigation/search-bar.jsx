@@ -7,7 +7,7 @@ import { isDbConnected, getStoriesDb } from "@/lib/actions";
 import { stories as mockStories } from "@/lib/mock-data";
 
 export function SearchBar({
-  placeholder = "Tìm truyện, manga, tác giả",
+  placeholder = "Tìm truyện manga, tác giả",
   wide = false,
 }) {
   const [query, setQuery] = useState("");
@@ -102,9 +102,11 @@ export function SearchBar({
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className="truncate text-sm font-bold text-ink hover:text-primary transition-colors">{story.title}</span>
-                    <span className="truncate text-xs font-medium text-subtle mt-0.5">
-                      {story.status === "Completed" ? "Full" : "Đang ra"} {story.type === "MANGA" ? "- Truyện tranh" : "- Truyện chữ"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-subtle">
+                        {story.status === "Completed" ? "Full" : "Đang ra"}
+                      </span>
+                    </div>
                   </div>
                 </Link>
               ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { loginUserDb, registerUserDb } from "@/lib/actions";
 
@@ -70,9 +71,15 @@ export function AuthModal({ isOpen, onClose }) {
 
         {/* Logo / Header */}
         <div className="flex flex-col items-center gap-1.5 mb-6 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-base font-black text-white">
-            D7
-          </span>
+          <div className="flex h-16 w-auto items-center justify-center mb-3">
+            <Image 
+              src="/logo.png" 
+              alt="DocTruyen247" 
+              width={250} 
+              height={70} 
+              className="h-full w-auto object-contain"
+            />
+          </div>
           <h2 className="text-xl font-black text-ink mt-2">
             Chào mừng độc giả
           </h2>

@@ -3,7 +3,6 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ChapterListItem } from "@/components/chapter/chapter-list-item";
-import { ModeSwitchToggle } from "@/components/mode-switch-toggle";
 import { RatingStars } from "@/components/rating-stars";
 import { SectionHeader } from "@/components/sections/section-header";
 import { StoryCover } from "@/components/story/story-cover";
@@ -197,61 +196,72 @@ export default function StoryDetailPage({ params }) {
     <div className="space-y-8">
       {story && (
         <>
-          <section className="grid gap-6 lg:grid-cols-[320px_1fr]">
-            <div className="space-y-4">
-              <StoryCover story={story} priority />
-              <div className="grid grid-cols-3 gap-2">
-                <Link
-                  href={
-                    storyChapters.length > 0
-                      ? `/read/${story.type.toLowerCase()}?storyId=${story.id}&chapterId=${storyChapters[storyChapters.length - 1].id}`
-                      : `/read/${story.type.toLowerCase()}?storyId=${story.id}`
-                  }
-                  className="button-primary col-span-3 text-center block"
-                >
-                  Đọc ngay
-                </Link>
-                <button 
-                  onClick={handleToggleFollow}
-                  className={`button-ghost ${isFollowing ? 'text-primary border-primary bg-primary/10' : ''}`}
-                >
-                  {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
-                </button>
-                <button 
-                  onClick={handleToggleFavorite}
-                  className={`button-ghost ${isFavorited ? 'text-rose-500 border-rose-500 bg-rose-500/10' : ''}`}
-                >
-                  {isFavorited ? 'Đã yêu thích' : 'Yêu thích'}
-                </button>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Đã sao chép liên kết thành công!");
-                  }}
-                  className="button-ghost"
-                >
-                  Chia sẻ
-                </button>
-                {story.sourceUrl ? (
-                  <a
-                    href={story.sourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="button-ghost col-span-3 text-center"
-                  >
-                    Mở link nguồn
-                  </a>
-                ) : null}
+          <section className="relative overflow-hidden rounded-2xl border border-line bg-surface p-6 shadow-soft">
+            {/* Blurred Background Image */}
+            {story.coverUrl && (
+              <div className="absolute inset-0 z-0 select-none pointer-events-none">
+                <div className="absolute inset-0 bg-surface/80 backdrop-blur-2xl dark:bg-surface/85 z-10" />
+                <img src={story.coverUrl} alt="" className="w-full h-full object-cover opacity-40 blur-2xl" />
               </div>
-            </div>
+            )}
 
-            <div className="rounded-lg border border-line bg-surface p-5 shadow-soft">
-              <div className="flex flex-wrap items-center gap-2">
-                <TagBadge tone={story.type === "NOVEL" ? "blue" : "violet"}>
-                  {formatStoryType(story.type)}
-                </TagBadge>
-                <TagBadge>{formatStoryStatus(story.status)}</TagBadge>
+            <div className="relative z-10 grid gap-8 lg:grid-cols-[320px_1fr]">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <StoryCover story={story} priority />
+                <div className="grid grid-cols-3 gap-2">
+                  <Link
+                    href={
+                      storyChapters.length > 0
+                        ? `/read/manga?storyId=${story.id}&chapterId=${storyChapters[storyChapters.length - 1].id}`
+                        : `/read/manga?storyId=${story.id}`
+                    }
+                    className="button-primary col-span-3 text-center block"
+                  >
+                    Đọc ngay
+                  </Link>
+                  <button 
+                    onClick={handleToggleFollow}
+                    className={`button-ghost ${isFollowing ? 'text-primary border-primary bg-primary/10' : ''}`}
+                  >
+                    {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
+                  </button>
+                  <button 
+                    onClick={handleToggleFavorite}
+                    className={`button-ghost ${isFavorited ? 'text-rose-500 border-rose-500 bg-rose-500/10' : ''}`}
+                  >
+                    {isFavorited ? 'Đã yêu thích' : 'Yêu thích'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert("Đã sao chép liên kết thành công!");
+                    }}
+                    className="button-ghost"
+                  >
+                    Chia sẻ
+                  </button>
+                  {story.sourceUrl ? (
+                    <a
+                      href={story.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="button-ghost col-span-3 text-center"
+                    >
+                      Mở link nguồn
+                    </a>
+                  ) : null}
+                </div>
               </div>
+
+              {/* Right Column */}
+              <div className="flex flex-col">
+                <div className="flex flex-wrap items-center gap-2">
+                  <TagBadge tone="violet">
+                    MANGA
+                  </TagBadge>
+                  <TagBadge>{formatStoryStatus(story.status)}</TagBadge>
+                </div>
 
               <h1 className="mt-4 text-3xl font-black text-ink md:text-5xl">
                 {story.title}
@@ -348,25 +358,26 @@ export default function StoryDetailPage({ params }) {
                 ) : null}
               </details>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="space-y-4">
-            <ModeSwitchToggle active={story.type} />
-            <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+        <section className="space-y-4">
+          <div className="w-full">
               <div className="rounded-lg border border-line bg-surface p-4 shadow-soft">
                 <SectionHeader
                   title="Danh sách chương"
                   action={`${storyChapters.length} chương`}
                 />
-                <div className="mt-4 divide-y divide-line">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[500px] overflow-y-auto pr-2">
                   {storyChapters.length > 0 ? (
                     storyChapters.map((chapter) => (
                       <Link
                         key={chapter.id}
                         href={`/read/${story.type.toLowerCase()}?storyId=${story.id}&chapterId=${chapter.id}`}
-                        className="block hover:bg-muted/40 transition px-2 rounded-lg"
+                        className="rounded-lg border border-line bg-canvas p-3 transition hover:border-primary hover:shadow-soft group"
                       >
-                        <ChapterListItem chapter={chapter} />
+                        <p className="text-sm font-black text-ink group-hover:text-primary transition-colors">Chương {chapter.number}</p>
+                        <p className="mt-1 truncate text-xs text-subtle">{chapter.title}</p>
                       </Link>
                     ))
                   ) : (
@@ -374,57 +385,6 @@ export default function StoryDetailPage({ params }) {
                       Truyện chưa có chương nào.
                     </p>
                   )}
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-line bg-surface p-4 shadow-soft">
-                <SectionHeader title="Danh sách tập manga" action="Dạng lưới" />
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {story.type === "MANGA" && storyChapters.length > 0
-                    ? storyChapters.map((chapter) => (
-                        <div
-                          key={chapter.id}
-                          className="group overflow-hidden rounded-lg border border-line bg-muted transition hover:-translate-y-1 hover:shadow-soft"
-                        >
-                          <div className="aspect-[4/3] bg-slate-200 overflow-hidden dark:bg-slate-800 relative">
-                            {chapter.imageUrls?.[0] ? (
-                              <img
-                                src={chapter.imageUrls[0]}
-                                alt={chapter.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="h-full rounded-lg border border-white/40 bg-white/40 dark:border-white/10 dark:bg-white/10" />
-                            )}
-                          </div>
-                          <div className="p-3">
-                            <p className="text-sm font-bold text-ink">
-                              Tập {chapter.number}
-                            </p>
-                            <p className="mt-1 truncate text-xs text-subtle">
-                              {chapter.title}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    : episodes.map((episode) => (
-                        <div
-                          key={episode.id}
-                          className="group overflow-hidden rounded-lg border border-line bg-muted transition hover:-translate-y-1 hover:shadow-soft"
-                        >
-                          <div className="aspect-[4/3] bg-slate-200 p-3 dark:bg-slate-800">
-                            <div className="h-full rounded-lg border border-white/40 bg-white/40 dark:border-white/10 dark:bg-white/10" />
-                          </div>
-                          <div className="p-3">
-                            <p className="text-sm font-bold text-ink">
-                              Tập {episode.number}
-                            </p>
-                            <p className="mt-1 truncate text-xs text-subtle">
-                              {episode.title}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
                 </div>
               </div>
             </div>

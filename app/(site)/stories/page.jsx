@@ -43,8 +43,7 @@ function StoryListContent() {
     if (activeCategory !== "Tất cả" && !story.tags.includes(activeCategory)) return false;
     
     if (activeType !== "Tất cả") {
-      const storyType = story.type.toLowerCase() === "novel" ? "truyện chữ" : "manga";
-      if (storyType !== activeType.toLowerCase()) return false;
+      if (activeType.toLowerCase() !== "manga") return false;
     }
     
     if (activeStatus !== "Tất cả") {

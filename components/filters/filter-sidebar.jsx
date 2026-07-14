@@ -4,7 +4,7 @@ import { useState } from "react";
 import { categories } from "@/lib/mock-data";
 
 const statusList = ["Tất cả", "Đang ra", "Hoàn thành", "Tạm ngưng"];
-const types = ["Tất cả", "Truyện chữ", "Manga"];
+const types = ["Tất cả", "Manga"];
 
 export function FilterSidebar({
   activeCategory,
@@ -67,24 +67,6 @@ export function FilterSidebar({
           </div>
         </div>
 
-        <div>
-          <p className="text-sm font-black text-ink">Loại truyện</p>
-          <div className="mt-3 grid grid-cols-3 gap-2 lg:grid-cols-1">
-            {types.map((type) => (
-              <button
-                key={type}
-                onClick={() => setActiveType(type)}
-                className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-                  activeType === type
-                    ? "border-primary bg-primary text-white"
-                    : "border-line bg-canvas text-subtle hover:border-primary hover:text-primary"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <div>
           <p className="text-sm font-black text-ink">Trạng thái</p>

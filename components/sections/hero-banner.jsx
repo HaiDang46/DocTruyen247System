@@ -108,7 +108,7 @@ export function HeroBanner({ stories }) {
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
               href={`/stories/${activeStory.slug}`}
-              className="flex items-center gap-2 rounded-xl bg-primary hover:bg-primary/90 px-6 py-3.5 text-sm font-black text-white shadow-md transition duration-200 hover:-translate-y-[1px]"
+              className="button-primary flex items-center gap-2"
             >
               <span className="text-lg">▶</span> Xem Ngay
             </Link>

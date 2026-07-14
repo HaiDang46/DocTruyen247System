@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ActiveLink } from "./active-link";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/auth-modal";
+import Image from "next/image";
 
 const navItems = [
   { label: "Trang chủ", href: "/" },
@@ -119,15 +120,17 @@ function AppShellContent({ children }) {
   return (
     <div className="app-frame">
       <header className="top-nav">
-        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 justify-between">
+        <div className="mx-auto flex h-20 max-w-[1600px] items-center gap-3 px-4 justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">
-                D7
-              </span>
-              <span className="hidden text-lg font-black text-ink sm:inline">
-                DocTruyen247
-              </span>
+            <Link href="/" className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="DocTruyen247" 
+                width={250} 
+                height={70} 
+                className="h-[64px] w-auto object-contain"
+                priority
+              />
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">

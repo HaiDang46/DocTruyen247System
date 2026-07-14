@@ -13,7 +13,7 @@ export function StoryCard({ story, compact = false }) {
       <StoryCover story={story} compact={compact} />
       <div className="space-y-2 p-3">
         <div className="flex items-center justify-between gap-2">
-          <TagBadge tone={story.type === "NOVEL" ? "blue" : "violet"}>
+          <TagBadge tone="violet">
             {formatStoryType(story.type)}
           </TagBadge>
           <span className="text-xs font-bold text-subtle">{story.views}</span>

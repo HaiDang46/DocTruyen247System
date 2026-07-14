@@ -33,8 +33,7 @@ export default function HomePage() {
 
   const trending = stories.slice(0, 5);
   const latest = stories.slice(3, 8);
-  const novels = stories.filter((story) => story.type === "NOVEL").slice(0, 5);
-  const mangas = stories.filter((story) => story.type === "MANGA").slice(0, 5);
+  const mangas = stories.slice(0, 5);
 
   return (
     <div className="space-y-10">
@@ -51,12 +50,7 @@ export default function HomePage() {
       </section>
 
       <section className="space-y-4">
-        <SectionHeader title="Truyện chữ nổi bật" action="Truyện chữ" />
-        <StoryGrid stories={novels} />
-      </section>
-
-      <section className="space-y-4">
-        <SectionHeader title="Manga nổi bật" action="Manga" />
+        <SectionHeader title="Manga nổi bật" action="Xem thêm" />
         <StoryGrid stories={mangas} />
       </section>
     </div>

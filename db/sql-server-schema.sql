@@ -48,7 +48,7 @@ CREATE TABLE stories (
   author_id UNIQUEIDENTIFIER NOT NULL,
   owner_user_id UNIQUEIDENTIFIER NULL,
   status NVARCHAR(30) NOT NULL DEFAULT 'draft',
-  content_type NVARCHAR(30) NOT NULL DEFAULT 'novel',
+  content_type NVARCHAR(30) NOT NULL DEFAULT 'manga',
   views BIGINT NOT NULL DEFAULT 0,
   created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
   updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
@@ -56,7 +56,7 @@ CREATE TABLE stories (
   CONSTRAINT fk_stories_author FOREIGN KEY (author_id) REFERENCES authors(id),
   CONSTRAINT fk_stories_owner_user FOREIGN KEY (owner_user_id) REFERENCES users(id),
   CONSTRAINT ck_stories_status CHECK (status IN ('draft', 'ongoing', 'completed', 'hiatus')),
-  CONSTRAINT ck_stories_content_type CHECK (content_type IN ('novel', 'manga'))
+  CONSTRAINT ck_stories_content_type CHECK (content_type IN ('manga'))
 );
 
 CREATE TABLE categories (

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { getUserByIdDb, isDbConnected } from "./actions";
 
 const AuthContext = createContext(undefined);
 
@@ -9,10 +10,27 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("doc_truyen_user");
+    const saved = sessionStorage.getItem("doc_truyen_user");
     if (saved) {
       try {
-        setUser(JSON.parse(saved));
+        const parsedUser = JSON.parse(saved);
+        setUser(parsedUser);
+        
+        // Refresh from DB
+        isDbConnected().then(connected => {
+          if (connected && parsedUser?.id) {
+            getUserByIdDb(parsedUser.id).then(res => {
+              if (res.success && res.data) {
+                setUser(res.data);
+                sessionStorage.setItem("doc_truyen_user", JSON.stringify(res.data));
+              } else {
+                console.error("getUserByIdDb failed:", res.error);
+              }
+            }).catch(e => {
+              console.error("getUserByIdDb threw:", e);
+            });
+          }
+        });
       } catch (e) {
         console.error(e);
       }
@@ -22,12 +40,12 @@ export function AuthProvider({ children }) {
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("doc_truyen_user", JSON.stringify(userData));
+    sessionStorage.setItem("doc_truyen_user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("doc_truyen_user");
+    sessionStorage.removeItem("doc_truyen_user");
   };
 
   return (

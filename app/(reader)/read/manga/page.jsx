@@ -229,7 +229,7 @@ function MangaReaderContent() {
               </p>
               <p>
                 <span className="inline-block w-32 font-bold text-subtle">Định dạng:</span> 
-                {story.type === "MANGA" ? "Truyện Tranh / Hình Ảnh" : "Truyện Chữ"}
+                Truyện Tranh
               </p>
               <p>
                 <span className="inline-block w-32 font-bold text-subtle">Tình trạng:</span> 

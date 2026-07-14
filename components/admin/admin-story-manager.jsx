@@ -32,7 +32,7 @@ import {
 const emptyStoryForm = {
   title: "",
   author: "",
-  type: "NOVEL",
+  type: "MANGA",
   status: "Ongoing",
   tags: "",
   sourceUrl: "",
@@ -95,7 +95,7 @@ function isSupportedMangaImageName(name) {
   return /\.(jpe?g|png|webp)$/i.test(name);
 }
 
-const menu = ["Truyện", "Chương", "Tải lên", "Người dùng", "Thống kê"];
+const menu = ["Truyện", "Chương", "Người dùng", "Thống kê"];
 const coverClasses = [
   "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
   "bg-gradient-to-br from-fuchsia-700 via-slate-950 to-cyan-500",
@@ -1307,20 +1307,7 @@ export function AdminStoryManager() {
                     }
                   />
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <select
-                      className="soft-control w-full px-3 py-2.5 text-sm outline-none"
-                      value={storyForm.type}
-                      onChange={(event) =>
-                        setStoryForm((form) => ({
-                          ...form,
-                          type: event.target.value,
-                        }))
-                      }
-                    >
-                      <option value="NOVEL">Truyện chữ</option>
-                      <option value="MANGA">Manga</option>
-                    </select>
+                  <div className="grid gap-3 sm:grid-cols-1">
                     <select
                       className="soft-control w-full px-3 py-2.5 text-sm outline-none"
                       value={storyForm.status}
@@ -1565,62 +1552,7 @@ export function AdminStoryManager() {
                     }
                   />
 
-                  {selectedStory?.type === "NOVEL" ? (
-                    <div className="space-y-3 rounded-lg border border-line bg-canvas p-3">
-                      <div>
-                        <label className="block text-xs font-bold text-ink mb-1.5">
-                          Tải file truyện chữ (Tất cả định dạng)
-                        </label>
-                        <input
-                          className="w-full text-xs text-subtle"
-                          type="file"
-                          onChange={handleTextFileUpload}
-                        />
-                      </div>
-
-                      <div className="border-t border-line pt-2.5">
-                        <label className="block text-xs font-bold text-ink mb-1.5">
-                          Hoặc cào nội dung từ Link (URL)
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="url"
-                            className="soft-control flex-1 px-3 py-2 text-xs outline-none"
-                            placeholder="Dán link chương (ví dụ: truyenfull...)"
-                            value={scrapeUrl}
-                            onChange={(e) => setScrapeUrl(e.target.value)}
-                          />
-
-                          <button
-                            type="button"
-                            onClick={handleScrapeClick}
-                            disabled={scraping}
-                            className="button-primary text-xs px-3 py-2 shrink-0"
-                          >
-                            {scraping ? "Đang lấy..." : "Lấy chữ"}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-line pt-2.5">
-                        <label className="block text-xs font-bold text-ink mb-1.5">
-                          Nội dung chương
-                        </label>
-                        <textarea
-                          className="soft-control min-h-32 w-full px-3 py-2 text-xs outline-none"
-                          placeholder="Hoặc dán nội dung chương vào đây"
-                          value={chapterForm.content}
-                          onChange={(event) =>
-                            setChapterForm((form) => ({
-                              ...form,
-                              content: event.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 rounded-lg border border-line bg-canvas p-3">
+                  <div className="space-y-3 rounded-lg border border-line bg-canvas p-3">
                       <label className="block text-xs font-bold text-ink">
                         Tải ảnh manga (Ảnh lẻ hoặc file ZIP/CBZ)
                       </label>
@@ -1670,7 +1602,6 @@ export function AdminStoryManager() {
                         </p>
                       )}
                     </div>
-                  )}
                   <div className="grid gap-2 sm:grid-cols-2">
                     <button
                       className="button-primary text-xs py-2.5"
@@ -1697,136 +1628,6 @@ export function AdminStoryManager() {
           </section>
         )}
 
-        {/* Tab 3: File Import / Upload */}
-        {activeMenu === "Tải lên" && (
-          <div className="surface-panel p-6 space-y-6">
-            <div className="text-center max-w-xl mx-auto space-y-3 py-6">
-              <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary/10 text-primary text-3xl">
-                📥
-              </div>
-              <h2 className="text-xl font-black text-ink">
-                Nhập Truyện Tự Động Từ File
-              </h2>
-              <p className="text-xs text-subtle leading-relaxed">
-                Hệ thống tự động phân tích và tạo truyện cùng đầy đủ các chương
-                bên trong hoàn toàn ở phía client. Hỗ trợ cả truyện chữ (.txt,
-                .epub) và truyện tranh (.zip).
-              </p>
-            </div>
-
-            {importSuccess ? (
-              <div className="max-w-xl mx-auto rounded-lg border border-emerald-200 bg-emerald-50 dark:border-emerald-950 dark:bg-emerald-950/20 p-5 space-y-4">
-                <div className="flex gap-3">
-                  <span className="text-2xl">✅</span>
-                  <div>
-                    <h3 className="text-sm font-black text-emerald-800 dark:text-emerald-400">
-                      Nhập truyện thành công!
-                    </h3>
-                    <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-500">
-                      Đã tạo truyện <strong>{importSuccess.title}</strong> (
-                      {importSuccess.type === "NOVEL" ? "Truyện chữ" : "Manga"})
-                      với{" "}
-                      <strong>{importSuccess.chaptersCount} chương/tập</strong>.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setActiveMenu("Truyện");
-                      setImportSuccess(null);
-                    }}
-                    className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
-                  >
-                    Quản lý truyện
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveMenu("Chương");
-                      setImportSuccess(null);
-                    }}
-                    className="rounded-lg border border-emerald-200 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-400 transition hover:bg-emerald-50 dark:hover:bg-slate-800"
-                  >
-                    Xem danh sách chương
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="max-w-xl mx-auto">
-                {importLoading ? (
-                  <div className="rounded-lg border border-line bg-canvas p-8 text-center space-y-4">
-                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                    <p className="text-sm font-bold text-ink">
-                      {importMessage}
-                    </p>
-                    <p className="text-xs text-subtle">
-                      Vui lòng không đóng trình duyệt...
-                    </p>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-line bg-canvas p-10 cursor-pointer hover:border-primary transition group text-center">
-                    <span className="text-4xl group-hover:scale-110 transition duration-200">
-                      📂
-                    </span>
-                    <p className="mt-4 text-sm font-black text-ink">
-                      Chọn tệp tin để nhập truyện
-                    </p>
-                    <p className="mt-1 text-xs text-subtle">
-                      Hỗ trợ mọi định dạng tệp tin văn bản hoặc lưu trữ nén
-                      (.txt, .html, .epub, .zip, .cbz,...)
-                    </p>
-                    <input
-                      type="file"
-                      onChange={handleFileImport}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            )}
-
-            {/* Formatting Help Card */}
-            <div className="max-w-2xl mx-auto rounded-lg border border-line bg-muted/40 p-4 space-y-3">
-              <h3 className="text-xs font-black uppercase text-subtle tracking-wider">
-                Hướng dẫn chuẩn bị file nhập
-              </h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-subtle">
-                <div className="space-y-1">
-                  <p className="font-bold text-ink text-xs">
-                    📝 Tệp văn bản đơn lẻ
-                  </p>
-                  <p>
-                    Hỗ trợ .txt, .html, .htm, .md, .json,... Các chương bắt đầu
-                    bằng dòng riêng như <strong>Chương [Số]</strong>. Tệp
-                    HTML/XML sẽ được tự động lọc sạch thẻ tag khi nhập.
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-bold text-ink text-xs">
-                    📘 Sách điện tử .EPUB
-                  </p>
-                  <p>
-                    Định dạng chuẩn nhất cho truyện chữ Novel. Hệ thống tự giải
-                    nén để lấy ảnh bìa, tên truyện, tác giả, mô tả giới thiệu và
-                    toàn bộ cấu trúc mục lục chương một cách chính xác.
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="font-bold text-ink text-xs">📦 File nén .ZIP</p>
-                  <p>
-                    <strong>Manga:</strong> ZIP chứa các thư mục tương ứng với
-                    từng chương (ví dụ: <code>Chương 1</code>,{" "}
-                    <code>Chương 2</code>), bên trong chứa các file ảnh (.jpg,
-                    .png, .webp).
-                    <br />
-                    <strong>Novel:</strong> ZIP chứa nhiều file text{" "}
-                    <code>.txt</code> tương ứng với từng chương.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Tab 4: Mock Users management */}
         {activeMenu === "Người dùng" && (
