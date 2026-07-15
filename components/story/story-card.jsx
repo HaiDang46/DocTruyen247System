@@ -16,7 +16,13 @@ export function StoryCard({ story, compact = false }) {
           <TagBadge tone="violet">
             {formatStoryType(story.type)}
           </TagBadge>
-          <span className="text-xs font-bold text-subtle">{story.views}</span>
+          <span className="flex items-center gap-1 text-xs font-bold text-subtle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {story.views}
+          </span>
         </div>
         <h3 className="line-clamp-2 min-h-10 text-sm font-black text-ink">
           {story.title}

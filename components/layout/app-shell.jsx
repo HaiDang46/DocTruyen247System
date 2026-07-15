@@ -8,6 +8,7 @@ import { ActiveLink } from "./active-link";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { AuthModal } from "@/components/auth/auth-modal";
 import Image from "next/image";
+import { Footer } from "@/components/layout/footer";
 
 const navItems = [
   { label: "Trang chủ", href: "/" },
@@ -213,9 +214,11 @@ function AppShellContent({ children }) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1600px] px-4 pb-24 pt-24 lg:pb-8">
+      <div className="mx-auto max-w-[1600px] px-4 pb-24 pt-24 lg:pb-8 flex-grow w-full">
         <main className="min-w-0">{children}</main>
       </div>
+
+      <Footer />
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-2 py-1.5 backdrop-blur lg:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4 gap-1">

@@ -32,12 +32,21 @@ export default function HomePage() {
   }, []);
 
   const trending = stories.slice(0, 5);
-  const latest = stories.slice(3, 8);
-  const mangas = stories.slice(0, 5);
+  
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  
+  const latest = stories.filter(story => {
+    const date = story.createdAt ? new Date(story.createdAt) : new Date(); // default to today for mock data
+    return date >= threeDaysAgo;
+  }).slice(0, 10);
+
+  const mangas = stories.filter(story => (story.rating || 0) >= 4).slice(0, 10);
+
 
   return (
     <div className="space-y-10">
-      {trending.length > 0 ? <HeroBanner stories={trending} /> : null}
+      {mangas.length > 0 ? <HeroBanner stories={mangas.slice(0, 5)} /> : null}
 
       <section className="space-y-4">
         <SectionHeader title="Đang thịnh hành" action="Xem tất cả" />

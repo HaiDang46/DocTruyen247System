@@ -28,7 +28,7 @@ export default function ProfilePage() {
             setItems(res.data);
           }
         } else {
-          setItems(mockProfileItems);
+          setItems([]);
         }
       } else if (activeTab === 1 || activeTab === 2) {
         // Yêu thích hoặc Đang theo dõi
@@ -136,7 +136,9 @@ export default function ProfilePage() {
             ))
           ) : (
             <p className="col-span-2 py-12 text-sm text-subtle text-center">
-              Danh sách trống. Hãy khám phá và thêm truyện vào danh sách nhé!
+              {!user && activeTab === 0 
+                ? "Vui lòng đăng nhập để lưu và xem lịch sử đọc." 
+                : "Danh sách trống. Hãy khám phá và thêm truyện vào danh sách nhé!"}
             </p>
           )}
         </div>

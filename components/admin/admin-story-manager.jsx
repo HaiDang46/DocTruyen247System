@@ -8,7 +8,7 @@ import { SectionHeader } from "@/components/sections/section-header";
 import { StoryCover } from "@/components/story/story-cover";
 import { TagBadge } from "@/components/tag-badge";
 import { formatStoryStatus, formatStoryType } from "@/lib/display";
-import { chapters, stories as mockStories } from "@/lib/mock-data";
+import { chapters, stories as mockStories, categories } from "@/lib/mock-data";
 import {
   parseSingleTxt,
   parseEpubStory,
@@ -1323,17 +1323,50 @@ export function AdminStoryManager() {
                       <option value="Hiatus">Tạm ngưng</option>
                     </select>
                   </div>
-                  <input
-                    className="soft-control w-full px-3 py-2.5 text-sm outline-none"
-                    placeholder="Thể loại, cách nhau bằng dấu phẩy"
-                    value={storyForm.tags}
-                    onChange={(event) =>
-                      setStoryForm((form) => ({
-                        ...form,
-                        tags: event.target.value,
-                      }))
-                    }
-                  />
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-ink">Thể loại</label>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => {
+                        const currentTags = storyForm.tags ? storyForm.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
+                        const isSelected = currentTags.includes(category);
+                        return (
+                          <button
+                            key={category}
+                            type="button"
+                            onClick={() => {
+                              setStoryForm((form) => {
+                                let tagsList = form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
+                                if (tagsList.includes(category)) {
+                                  tagsList = tagsList.filter(t => t !== category);
+                                } else {
+                                  tagsList.push(category);
+                                }
+                                return { ...form, tags: tagsList.join(", ") };
+                              });
+                            }}
+                            className={`rounded-full px-3 py-1 text-xs font-bold transition ${
+                              isSelected
+                                ? "bg-primary text-white"
+                                : "bg-canvas border border-line text-subtle hover:bg-muted"
+                            }`}
+                          >
+                            {category}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <input
+                      className="soft-control w-full px-3 py-2.5 text-sm outline-none mt-2"
+                      placeholder="Hoặc nhập thể loại khác (cách nhau bằng dấu phẩy)..."
+                      value={storyForm.tags || ""}
+                      onChange={(event) =>
+                        setStoryForm((form) => ({
+                          ...form,
+                          tags: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
 
                   <div className="space-y-1.5 rounded-lg border border-line bg-canvas p-3">
                     <label className="block text-xs font-bold text-ink">
