@@ -44,7 +44,7 @@ CREATE TABLE stories (
   title NVARCHAR(255) NOT NULL,
   slug NVARCHAR(255) NOT NULL UNIQUE,
   description NVARCHAR(MAX) NULL,
-  cover_image NVARCHAR(500) NULL,
+  cover_image NVARCHAR(MAX) NULL,
   author_id UNIQUEIDENTIFIER NOT NULL,
   owner_user_id UNIQUEIDENTIFIER NULL,
   status NVARCHAR(30) NOT NULL DEFAULT 'draft',
