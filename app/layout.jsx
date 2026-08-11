@@ -1,11 +1,11 @@
-import { Merriweather } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const merriweather = Merriweather({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "700", "900"],
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  weight: ["300", "400", "500", "600", "700", "900"],
   display: "swap",
-  variable: "--font-merriweather",
+  variable: "--font-inter",
 });
 
 export const metadata = {
@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" suppressHydrationWarning className={`${merriweather.variable}`}>
+    <html lang="vi" suppressHydrationWarning className={`${inter.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased">{children}</body>
     </html>
   );

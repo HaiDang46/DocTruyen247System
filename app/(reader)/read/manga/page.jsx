@@ -190,7 +190,7 @@ function MangaReaderContent() {
       <ReaderToolbar mode="manga" imageSize={imageSize} setImageSize={setImageSize} />
 
       <section className="mx-auto w-full px-0 py-5 sm:px-4">
-        <div className="mx-auto mb-8 max-w-5xl border-b border-line pb-8 px-4 sm:px-0">
+        <div className="mx-auto mb-8 max-w-[1200px] border-b border-line pb-8 px-4 sm:px-0">
           {/* Breadcrumb */}
           <div className="mb-6 flex flex-wrap items-center gap-2 text-sm font-medium text-subtle">
             <Link href="/" className="hover:text-primary transition-colors">
@@ -332,7 +332,7 @@ function MangaReaderContent() {
       </section>
 
       {/* Comments Section */}
-      <section id="comments-section" className="mx-auto mb-10 w-full max-w-4xl px-4 sm:px-0">
+      <section id="comments-section" className="mx-auto mb-10 w-full max-w-[1200px] px-4 sm:px-0">
         <div className="rounded-lg border border-line bg-surface p-5 shadow-soft">
           <h2 className="mb-4 text-lg font-bold text-ink">Bình luận chapter {currentChapter.number} ({comments.length})</h2>
           {user ? (

@@ -95,7 +95,7 @@ function isSupportedMangaImageName(name) {
   return /\.(jpe?g|png|webp)$/i.test(name);
 }
 
-const menu = ["Truyện", "Chương", "Người dùng", "Thống kê"];
+const menu = ["Truyện", "Chương"];
 const coverClasses = [
   "bg-gradient-to-br from-slate-950 via-blue-800 to-sky-500",
   "bg-gradient-to-br from-fuchsia-700 via-slate-950 to-cyan-500",
@@ -319,10 +319,6 @@ export function AdminStoryManager() {
   const stats = useMemo(
     () => [
       { label: "Tổng truyện", value: String(stories.length) },
-      {
-        label: "Truyện chữ",
-        value: String(stories.filter((story) => story.type === "NOVEL").length),
-      },
       {
         label: "Manga",
         value: String(stories.filter((story) => story.type === "MANGA").length),

@@ -16,7 +16,10 @@ module.exports = {
         ink: "rgb(var(--color-ink) / <alpha-value>)",
         subtle: "rgb(var(--color-subtle) / <alpha-value>)",
         primary: "rgb(var(--color-primary) / <alpha-value>)",
-        primarySoft: "rgb(var(--color-primary-soft) / <alpha-value>)"
+        primarySoft: "rgb(var(--color-primary-soft) / <alpha-value>)",
+        netpurple: "#2b1b3d",
+        netred: "#ff2853",
+        netyellow: "#f8a02a",
       },
       boxShadow: {
         soft: "0 16px 40px rgb(15 23 42 / 0.08)",
@@ -51,9 +54,9 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "var(--font-merriweather)",
-          "ui-sans-serif",
-          "system-ui",
+          "var(--font-inter)",
+          "Tahoma",
+          "Arial",
           "sans-serif",
         ]
       }

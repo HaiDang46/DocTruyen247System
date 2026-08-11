@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HeroBanner } from "@/components/sections/hero-banner";
-import { SectionHeader } from "@/components/sections/section-header";
+import { RecommendedStories } from "@/components/sections/recommended-stories";
+import { LeaderboardSidebar } from "@/components/sections/leaderboard-sidebar";
 import { StoryGrid } from "@/components/story/story-grid";
-import { stories as mockStories } from "@/lib/mock-data";
 import { isDbConnected, getStoriesDb } from "@/lib/actions";
 
 export default function HomePage() {
-  const [stories, setStories] = useState(mockStories);
+  const [stories, setStories] = useState([]);
 
   useEffect(() => {
     isDbConnected().then((connected) => {
@@ -31,37 +30,22 @@ export default function HomePage() {
     });
   }, []);
 
-  const trending = stories.slice(0, 5);
-  
-  const threeDaysAgo = new Date();
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-  
-  const latest = stories.filter(story => {
-    const date = story.createdAt ? new Date(story.createdAt) : new Date(); // default to today for mock data
-    return date >= threeDaysAgo;
-  }).slice(0, 10);
-
-  const mangas = stories.filter(story => (story.rating || 0) >= 4).slice(0, 10);
-
-
   return (
-    <div className="space-y-10">
-      {mangas.length > 0 ? <HeroBanner stories={mangas.slice(0, 5)} /> : null}
+    <div className="flex flex-col gap-6">
+      <div className="w-full">
+        <RecommendedStories stories={stories} />
 
-      <section className="space-y-4">
-        <SectionHeader title="Đang thịnh hành" action="Xem tất cả" />
-        <StoryGrid stories={trending} />
-      </section>
+        <div className="mb-4 flex items-center justify-between border-b-2 border-netpurple pb-2">
+          <h2 className="text-xl font-bold text-[#2980b9] dark:text-blue-400">
+            NetTruyen - Truyện gì cũng có! <span className="text-sm font-normal text-gray-500">&gt;</span>
+          </h2>
+          <button className="text-netyellow hover:text-orange-500 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </button>
+        </div>
 
-      <section className="space-y-4">
-        <SectionHeader title="Mới cập nhật" action="Mới nhất" />
-        <StoryGrid stories={latest} compact />
-      </section>
-
-      <section className="space-y-4">
-        <SectionHeader title="Manga nổi bật" action="Xem thêm" />
-        <StoryGrid stories={mangas} />
-      </section>
+        <StoryGrid stories={stories} />
+      </div>
     </div>
   );
 }

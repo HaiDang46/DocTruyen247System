@@ -119,122 +119,94 @@ function AppShellContent({ children }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <div className="app-frame">
-      <header className="top-nav">
-        <div className="mx-auto flex h-20 max-w-[1600px] items-center gap-3 px-4 justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center">
-              <Image 
-                src="/logo.png" 
-                alt="DocTruyen247" 
-                width={250} 
-                height={70} 
-                className="h-[64px] w-auto object-contain"
-                priority
-              />
-            </Link>
+    <div className="app-frame flex flex-col min-h-screen">
+      {/* Top Header - Dark Purple */}
+      <header className="bg-netpurple">
+        <div className="mx-auto flex min-h-[80px] max-w-[1200px] items-center justify-between px-4 py-2">
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/logo.png" 
+              alt="NetTruyen" 
+              width={250} 
+              height={60} 
+              className="h-[60px] w-auto object-contain"
+              priority
+            />
+          </Link>
 
-            <nav className="hidden items-center gap-1 md:flex">
-              {navItems.filter(item => item.href !== "/admin" || (user && user.role === 99)).map((item) => (
-                <ActiveLink
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-lg px-3.5 py-2 text-sm font-bold transition text-subtle hover:text-ink hover:bg-muted"
-                  activeClassName="!bg-primary !text-white shadow-sm"
-                >
-                  {item.label}
-                </ActiveLink>
-              ))}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden w-64 md:block">
+          <div className="hidden flex-1 items-center justify-center px-8 md:flex">
+            <div className="w-full max-w-lg">
               <SearchBar />
             </div>
+          </div>
 
+          <div className="flex items-center gap-4">
             <ThemeToggle />
-
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex h-9 items-center gap-2 rounded-lg bg-muted px-3 text-xs font-black text-ink hover:bg-muted/80 transition"
+                  className="flex items-center gap-2 text-white hover:text-gray-200 transition"
                   type="button"
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-[10px] font-black text-white uppercase">
-                    {user.name.charAt(0)}
-                  </div>
-                  <span className="hidden sm:inline">{user.name}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span className="hidden text-sm font-semibold sm:inline">Tài khoản</span>
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-line bg-surface p-1.5 shadow-xl z-50">
-                    <div className="px-3 py-2 border-b border-line mb-1.5">
-                      <p className="text-[10px] text-subtle font-bold uppercase tracking-wider">
-                        Tài khoản
-                      </p>
-                      <p className="text-xs font-bold text-ink truncate mt-0.5">
-                        {user.name}
-                      </p>
-                      <p className="text-[10px] text-subtle truncate mt-0.5">
-                        {user.email}
-                      </p>
-                    </div>
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsDropdownOpen(false)}
-                      className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink hover:bg-muted transition"
-                    >
+                  <div className="absolute right-0 mt-2 w-48 rounded border border-line bg-surface p-1 shadow-xl z-50">
+                    <Link href="/profile" onClick={() => setIsDropdownOpen(false)} className="block px-3 py-2 text-sm text-ink hover:bg-muted">
                       Hồ sơ của tôi
                     </Link>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setIsDropdownOpen(false);
-                      }}
-                      className="w-full text-left block rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition mt-1"
-                      type="button"
-                    >
+                    <button onClick={() => { logout(); setIsDropdownOpen(false); }} className="w-full text-left block px-3 py-2 text-sm text-rose-600 hover:bg-muted">
                       Đăng xuất
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => setIsAuthOpen(true)}
-                className="flex h-9 items-center justify-center rounded-lg bg-primary hover:bg-primary/95 px-4 text-xs font-black text-white shadow-sm transition hover:-translate-y-[1px]"
-                type="button"
-              >
-                Đăng nhập
+              <button onClick={() => setIsAuthOpen(true)} className="flex items-center gap-2 text-white hover:text-gray-200 transition text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Đăng nhập</span>
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1600px] px-4 pb-24 pt-24 lg:pb-8 flex-grow w-full">
-        <main className="min-w-0">{children}</main>
+      {/* Sub Header - Navigation */}
+      <nav className="bg-[#f1f1f1] border-b border-gray-300 dark:bg-gray-800 dark:border-gray-700">
+        <div className="mx-auto flex max-w-[1200px] items-center gap-1 px-4 overflow-x-auto no-scrollbar">
+          <Link href="/" className="flex h-10 items-center px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-300"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </Link>
+          {navItems.filter(item => item.href !== "/" && item.href !== "/admin").map(item => (
+            <Link key={item.href} href={item.href} className="flex h-10 items-center px-4 text-[15px] font-medium text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 transition whitespace-nowrap uppercase">
+              {item.label}
+            </Link>
+          ))}
+          {user && user.role === 99 && (
+             <Link href="/admin" className="flex h-10 items-center px-4 text-[15px] font-bold text-netred hover:bg-gray-200 dark:hover:bg-gray-700 transition whitespace-nowrap uppercase">
+              QUẢN TRỊ
+            </Link>
+          )}
+        </div>
+      </nav>
+
+      {/* Main Content Area */}
+      <div className="mx-auto max-w-[1200px] w-full px-4 pt-4 pb-8 flex-grow">
+        {/* Alert Banner */}
+        <div className="mb-4 flex items-center gap-2 border border-[#48b9ef] bg-white p-2 text-sm text-red-500 dark:bg-gray-800 dark:border-blue-500 dark:text-red-400 rounded-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <span className="font-semibold">Không truy cập web giả mạo để tránh bị hack tài khoản</span>
+        </div>
+
+        <main className="min-w-0 bg-white dark:bg-gray-900 shadow-sm p-3 md:p-4 rounded-sm">
+          {children}
+        </main>
       </div>
 
       <Footer />
-
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-2 py-1.5 backdrop-blur lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
-          {bottomNavItems.filter(item => item.href !== "/admin" || (user && user.role === 99)).map((item) => (
-            <ActiveLink
-              key={item.href}
-              href={item.href}
-              className="flex flex-col items-center justify-center rounded-lg py-1.5 text-center text-[10px] font-bold text-subtle transition hover:bg-muted hover:text-ink"
-              activeClassName="!text-primary"
-            >
-              {item.icon}
-              <span className="mt-1">{item.label}</span>
-            </ActiveLink>
-          ))}
-        </div>
-      </nav>
 
       {/* Auth Modal */}
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
